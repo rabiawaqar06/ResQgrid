@@ -17,26 +17,59 @@
 
 #include "DynamicArray.h"
 
-// TODO(Farwa): merge the sorted runs a[lo..mid) and a[mid..hi) into tmp, then
-// copy back. Take from the LEFT run when the two are equal (that is what makes it stable).
-// See: report Section 5.7   |   Done when: test equal keys keep their original order
+// Merge the sorted runs a[lo..mid) and a[mid..hi) into tmp, then copy back.
+// The right item goes first only when it is strictly smaller (keeps it stable).
 template <typename T, typename Less>
 void mergeRuns(DynamicArray<T>& a, DynamicArray<T>& tmp, int lo, int mid, int hi, Less less) {
-    (void)a; (void)tmp; (void)lo; (void)mid; (void)hi; (void)less;
+    int i = lo;
+    int j = mid;
+    int k = lo;
+
+    while (i < mid && j < hi) {
+        if (less(a[j], a[i])) {
+            tmp[k] = a[j];
+            j++;
+        } else {
+            tmp[k] = a[i];
+            i++;
+        }
+        k++;
+    }
+    while (i < mid) {
+        tmp[k] = a[i];
+        i++;
+        k++;
+    }
+    while (j < hi) {
+        tmp[k] = a[j];
+        j++;
+        k++;
+    }
+
+    for (k = lo; k < hi; k++) {
+        a[k] = tmp[k];
+    }
 }
 
-// TODO(Farwa): recursive (or bottom-up) merge sort of a[lo..hi) using mergeRuns.
-// See: report Section 5.7   |   Done when: O(n log n); sorted output
+// Recursive merge sort of a[lo..hi).
 template <typename T, typename Less>
 void mergeSortRange(DynamicArray<T>& a, DynamicArray<T>& tmp, int lo, int hi, Less less) {
-    (void)a; (void)tmp; (void)lo; (void)hi; (void)less;
+    if (hi - lo < 2) {
+        return;
+    }
+    int mid = (lo + hi) / 2;
+    mergeSortRange(a, tmp, lo, mid, less);
+    mergeSortRange(a, tmp, mid, hi, less);
+    mergeRuns(a, tmp, lo, mid, hi, less);
 }
 
-// TODO(Farwa): allocate tmp once (same size as a), call mergeSortRange(a, tmp, 0, a.size(), less).
-// See: report Section 5.7   |   Done when: test equal keys keep their original order
 template <typename T, typename Less>
 void mergeSort(DynamicArray<T>& a, Less less) {
-    (void)a; (void)less;
+    if (a.size() < 2) {
+        return;
+    }
+    DynamicArray<T> tmp(a);     // same size as a, allocated once
+    mergeSortRange(a, tmp, 0, a.size(), less);
 }
 
 #endif // RESQGRID_MERGE_SORT_H

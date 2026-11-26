@@ -1,0 +1,20 @@
+Loaded data\scenario_01_tiny_trace.txt: 8 locations, 11 connections, 3 robots, 4 requests, 1 events
+========== FINAL STATISTICS ==========
+steps run:            29
+completed:            4
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     16
+max response:         26
+robot utilization %:  62.069
+total distance:       39
+total battery used:   57
+conflicts:            0
+reassignments:        0
+reroutes:             1
+battery rejections:   2
+dijkstra runs:        6
+execution time (ms):  0.5827
+======================================

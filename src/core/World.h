@@ -5,7 +5,7 @@
 //             part (a road blocked) is seen at once by the others (Report 3).
 // Depends on: Types, Environment, Robot, Request, DynamicArray, HashMap
 // Used by:    ScenarioLoader, EventProcessor, Rerouter, Coordinator, Movement,
-//             Simulation, Renderer, UIApp
+//             Simulation, main.cpp (step mode)
 // Milestone:  M0 (struct agreed) - it holds data only, no logic.
 //
 // Conventions
@@ -13,7 +13,7 @@
 //     File IDs are only used when reading the file and when writing the log.
 //     Convert with the *Index maps (ID -> index) and back with array[i].id.
 //   * Locations, connections, adjacency, charger flags and the network version
-//     live in `env` (Environment.h) so Router/Renderer only need the map.
+//     live in `env` (Environment.h) so Router only needs the map.
 //   * `requests` and `events` are STABLE-SORTED by time at load time
 //     (Report 5.7); the cursors point at the first one not yet processed.
 #ifndef RESQGRID_WORLD_H

@@ -2,7 +2,7 @@
 // Owner:      Sara
 // Purpose:    The 7-phase step loop and termination rule.
 // Depends on: Simulation.h (all core modules, Logger, Statistics), <chrono>
-// Used by:    main.cpp, UIApp
+// Used by:    main.cpp, tools/check_invariants
 // Milestone:  M3
 #include "Simulation.h"
 #include <chrono>
@@ -40,7 +40,7 @@ bool Simulation::step() {
         return false;
     }
 
-    // Measure only the time spent simulating (works for console and GUI).
+    // Measure only the time spent simulating (not waiting for step-mode input).
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
 
     int t = world.currentTime;

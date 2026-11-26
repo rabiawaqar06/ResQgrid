@@ -11,24 +11,48 @@ Robot::Robot(int id_, int startLocation, Capability cap, int maxBattery_, int in
       location(startLocation) {}
 
 bool Robot::canServe(Category cat) const {
-    // TODO(Farwa): GENERAL -> true; otherwise compare capability with cat
-    // (the first four Capability values line up with Category).
-    // See: report Section 6.2   |   Done when: GENERAL serves all 4 categories; FIRE does not serve MEDICAL
-    (void)cat;
+    if (capability == Capability::GENERAL) {
+        return true;
+    }
+    if (capability == Capability::MEDICAL && cat == Category::MEDICAL) return true;
+    if (capability == Capability::FIRE && cat == Category::FIRE) return true;
+    if (capability == Capability::SUPPLY && cat == Category::SUPPLY) return true;
+    if (capability == Capability::SEARCH && cat == Category::SEARCH) return true;
     return false;
 }
 
 bool Robot::isValidTransition(RobotState from, RobotState to) {
-    // TODO(Farwa): return true only for the transitions listed in Robot.h.
-    // See: report Sections 4.4 and 4.7   |   Done when: every arrow in the figure is true, everything else false
-    (void)from;
-    (void)to;
+    if (from == to) {
+        return false;
+    }
+    if (to == RobotState::OFFLINE) {
+        return true;
+    }
+    if (from == RobotState::AVAILABLE) {
+        return to == RobotState::TRAVELLING || to == RobotState::RETURNING;
+    }
+    if (from == RobotState::TRAVELLING) {
+        return to == RobotState::PERFORMING || to == RobotState::AVAILABLE || to == RobotState::RETURNING;
+    }
+    if (from == RobotState::PERFORMING) {
+        return to == RobotState::AVAILABLE;
+    }
+    if (from == RobotState::RETURNING) {
+        return to == RobotState::RECHARGING;
+    }
+    if (from == RobotState::RECHARGING) {
+        return to == RobotState::AVAILABLE || to == RobotState::RETURNING;
+    }
+    if (from == RobotState::OFFLINE) {
+        return to == RobotState::AVAILABLE;
+    }
     return false;
 }
 
 bool Robot::setState(RobotState newState) {
-    // TODO(Farwa): check isValidTransition(state, newState); set state if valid.
-    // See: report Section 4.4   |   Done when: invalid transition returns false and is logged (by the caller)
-    (void)newState;
-    return false;
+    if (!isValidTransition(state, newState)) {
+        return false;
+    }
+    state = newState;
+    return true;
 }

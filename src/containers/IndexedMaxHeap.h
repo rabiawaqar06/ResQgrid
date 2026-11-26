@@ -142,7 +142,7 @@ public:
     int  size() const    { return count; }
     bool isEmpty() const { return count == 0; }
 
-    // Read-only access for the UI's pending list (heap order, not sorted).
+    // Read-only access for the step-mode pending list (heap order, not sorted).
     int itemAt(int heapPos) const { return heap[heapPos]; }
 
 private:

@@ -1,0 +1,20 @@
+Loaded data\scenario_05_stress.txt: 120 locations, 260 connections, 24 robots, 150 requests, 60 events
+========== FINAL STATISTICS ==========
+steps run:            399
+completed:            150
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     13.36
+max response:         200
+robot utilization %:  20.3008
+total distance:       2093
+total battery used:   2847
+conflicts:            151
+reassignments:        1
+reroutes:             0
+battery rejections:   15
+dijkstra runs:        167
+execution time (ms):  33.2232
+======================================

@@ -1,11 +1,11 @@
 // File:       src/core/Simulation.h
 // Owner:      Sara
 // Purpose:    The simulation engine: loads a scenario, runs the 7-phase step
-//             loop, applies the termination rule, and gives the UI read-only
+//             loop, applies the termination rule, and gives main.cpp read-only
 //             access to everything (Report 4.2, 4.8).
 // Depends on: World, ScenarioLoader, Router, Coordinator, Movement,
 //             EventProcessor, Rerouter, Logger, Statistics
-// Used by:    main.cpp (console mode), UIApp (GUI mode)
+// Used by:    main.cpp (full run and step mode), tools/check_invariants
 // Milestone:  M3
 //
 // One step at time t (Report 4.2), in exactly this order:
@@ -44,7 +44,7 @@ public:
 
     // Runs ONE full step (phases 1-7) at the current time, then checks the
     // termination rule. Returns true if a step was run, false if the
-    // simulation was already finished. The UI calls this once per tick.
+    // simulation was already finished. Step mode calls this once per "s".
     bool step();
 
     // Calls step() until the simulation is finished (console mode).
@@ -53,7 +53,7 @@ public:
     bool isFinished() const { return finished; }
     bool isLoaded() const   { return loaded; }
 
-    // --- read-only access for main.cpp and the UI ---
+    // --- read-only access for main.cpp (step mode) and tools ---
     int                   currentTime() const { return world.currentTime; }
     const World&          getWorld() const    { return world; }
     const ScenarioLoader& getLoader() const   { return loader; }

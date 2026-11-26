@@ -1,0 +1,20 @@
+Loaded data\scenario_provided.txt: 56 locations, 117 connections, 12 robots, 60 requests, 20 events
+========== FINAL STATISTICS ==========
+steps run:            211
+completed:            60
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     19.4333
+max response:         94
+robot utilization %:  50.7504
+total distance:       785
+total battery used:   1383
+conflicts:            33
+reassignments:        2
+reroutes:             0
+battery rejections:   19
+dijkstra runs:        85
+execution time (ms):  12.434
+======================================

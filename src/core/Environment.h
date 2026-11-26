@@ -5,7 +5,7 @@
 //             counter (Report 5.4, 5.9).
 // Depends on: DynamicArray, LinkedList, Types
 // Used by:    World (World::env), Router, ScenarioLoader, EventProcessor,
-//             Rerouter, Movement, GraphLayout, Renderer
+//             Rerouter, Movement, main.cpp (step mode)
 // Milestone:  M2
 //
 // Key idea (Report 5.4): each road is ONE Connection record. Both ends get an
@@ -53,40 +53,32 @@ public:
 
     // append the location, append an empty adjacency list for it,
     // and if it is CHARGING add its index to `chargers`. Return its index.
-    // See: report Section 5.4   |   Done when: index == locations.size()-1 afterwards
     int addLocation(const Location& loc);
 
     // append the connection (a, b already converted to indices) and
     // add AdjEntry{b, c} to adjacency[a] and AdjEntry{a, c} to adjacency[b].
     // Return its index.
-    // See: report Section 5.4   |   Done when: the road appears in both endpoints' lists
     int addConnection(const Connection& conn);
 
     // set status BLOCKED. Return false (no change) if it was already
     // blocked: the caller logs the redundant-event warning.
-    // See: report Sections 5.4 and 6.3   |   Done when: blocking one road hides it both ways
     bool block(int connIndex);
 
     // set status OPEN and increment networkVersion. Return false
     // (no change, no version bump) if it was already open.
-    // See: report Sections 5.9 and 6.3   |   Done when: unreachable requests are retried after this
     bool unblock(int connIndex);
 
     // status == OPEN.
-    // See: report Section 6.1   |   Done when: Router skips blocked roads
     bool isOpen(int connIndex) const;
 
     // set stationOpen on a CHARGING location. Return false if the
     // location is not a charger or the flag already had that value.
-    // See: report Section 6.3 (STATION_DOWN/UP)   |   Done when: redundant STATION_DOWN returns false
     bool setStationOpen(int locIndex, bool open);
 
     // type == CHARGING and stationOpen.
-    // See: report Section 4.5   |   Done when: a down station is never chosen as nearest charger
     bool isOpenCharger(int locIndex) const;
 
     // empty every array, networkVersion = 0.
-    // See: report Section 5.4   |   Done when: a second load starts from an empty map
     void clear();
 
     int locationCount() const   { return locations.size(); }

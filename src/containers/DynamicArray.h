@@ -11,6 +11,7 @@
 // is O(1). The array owns its memory: copy constructor and assignment make a
 // deep copy, the destructor frees it. No bounds check in operator[] (callers
 // use valid indices); add an assert while debugging if you like.
+// clear() keeps the buffer, so refilling the array does not allocate again.
 #ifndef RESQGRID_DYNAMIC_ARRAY_H
 #define RESQGRID_DYNAMIC_ARRAY_H
 
@@ -19,70 +20,95 @@ class DynamicArray {
 public:
     DynamicArray() : data(nullptr), count(0), cap(0) {}
 
-    // TODO(Farwa): allocate `initialCapacity` slots (size stays 0).
-    // See: report Section 5.2   |   Done when: test pushes 10,000 ints and reads them back
     explicit DynamicArray(int initialCapacity) : data(nullptr), count(0), cap(0) {
-        (void)initialCapacity;
+        reserve(initialCapacity);
     }
 
-    // TODO(Farwa): deep copy of other's elements (new buffer, copy each element).
-    // See: report Section 5.2   |   Done when: copying then changing the copy leaves the original unchanged
     DynamicArray(const DynamicArray& other) : data(nullptr), count(0), cap(0) {
-        (void)other;
+        reserve(other.count);
+        for (int i = 0; i < other.count; i++) {
+            push_back(other.data[i]);
+        }
     }
 
-    // TODO(Farwa): self-assignment check, free old buffer, deep copy, return *this.
-    // See: report Section 5.2   |   Done when: a = a; and a = b; both work with no leak
     DynamicArray& operator=(const DynamicArray& other) {
-        (void)other;
+        if (this == &other) {
+            return *this;
+        }
+        clear();
+        reserve(other.count);
+        for (int i = 0; i < other.count; i++) {
+            push_back(other.data[i]);
+        }
         return *this;
     }
 
-    // TODO(Farwa): delete[] the buffer.
-    // See: plan Section 7 "every new has a matching delete"   |   Done when: no leaks (valgrind / ASan)
-    ~DynamicArray() {}
+    ~DynamicArray() {
+        delete[] data;
+    }
 
-    // TODO(Farwa): if full, grow to max(1, 2*cap) (copy elements), then append.
-    // See: report Section 5.2   |   Done when: test pushes 10,000 ints and reads them back
-    void push_back(const T& value) { (void)value; }
+    void push_back(const T& value) {
+        T copy = value;     // value may live inside this array, so copy it before growing
+        if (count == cap) {
+            if (cap == 0) {
+                grow(1);
+            } else {
+                grow(cap * 2);
+            }
+        }
+        data[count] = copy;
+        count++;
+    }
 
-    // TODO(Farwa): drop the last element (size - 1); return false if empty.
-    // Both heaps need it to shrink after removing the root.
-    // See: report Sections 5.5 and 5.6   |   Done when: size goes down by one; false on an empty array
-    bool pop_back() { return false; }
+    bool pop_back() {
+        if (count == 0) {
+            return false;
+        }
+        count--;
+        return true;
+    }
 
-    // TODO(Farwa): return data[index].
-    // See: report Section 5.2   |   Done when: values read back equal values pushed
     T& operator[](int index) {
-        (void)index;
-        static T dummy{};       // stub only: remove when implemented
-        return dummy;
+        return data[index];
     }
     const T& operator[](int index) const {
-        (void)index;
-        static T dummy{};       // stub only: remove when implemented
-        return dummy;
+        return data[index];
     }
 
-    // TODO(Farwa): make capacity at least newCap (never shrinks; size unchanged).
-    // The loader calls this with the section count so no regrowth happens.
-    // See: report Section 5.2   |   Done when: reserve(100) then 100 push_backs never reallocates
-    void reserve(int newCap) { (void)newCap; }
+    void reserve(int newCap) {
+        if (newCap > cap) {
+            grow(newCap);
+        }
+    }
 
-    // TODO(Farwa): make size exactly n with every element equal to value
-    // (Router uses it for dist[] / pred[]; Coordinator for counters).
-    // See: report Section 6.1   |   Done when: assign(5, -1) gives five -1 values
-    void assign(int n, const T& value) { (void)n; (void)value; }
+    void assign(int n, const T& value) {
+        T copy = value;
+        clear();
+        reserve(n);
+        for (int i = 0; i < n; i++) {
+            push_back(copy);
+        }
+    }
 
-    // TODO(Farwa): set size to 0 (keep or free the buffer, your choice: document it).
-    // See: report Section 5.2   |   Done when: size() == 0 after clear()
-    void clear() {}
+    void clear() {
+        count = 0;
+    }
 
     int  size() const     { return count; }
     int  capacity() const { return cap; }
     bool isEmpty() const  { return count == 0; }
 
 private:
+    void grow(int newCap) {
+        T* bigger = new T[newCap];
+        for (int i = 0; i < count; i++) {
+            bigger[i] = data[i];
+        }
+        delete[] data;
+        data = bigger;
+        cap = newCap;
+    }
+
     T*  data;
     int count;  // number of elements in use
     int cap;    // number of slots allocated

@@ -5,7 +5,7 @@
 //             priority key used by the pending heap (Report 4.3, 5.6, 5.9).
 // Depends on: Types
 // Used by:    World, ScenarioLoader, Coordinator, Movement, EventProcessor,
-//             Rerouter, Statistics, Renderer, UIApp
+//             Rerouter, Statistics, main.cpp (step mode)
 // Milestone:  M2
 //
 // A request is invisible until its report time (reported == false). At that
@@ -40,21 +40,20 @@ public:
     Request() = default;
     Request(int id, int reportTime, int location, Category cat, int urgency, int duration);
 
-    // TODO(Farwa): key = agingInterval * urgency - reportTime (Report 5.6).
+    // key = agingInterval * urgency - reportTime (Report 5.6).
     // The heap breaks equal keys by smaller ID; that is NOT part of this value.
-    // See: report Section 5.6   |   Done when: Scenario 01 gives 145 for Req 4 and 98 for Req 3
+    // Scenario 01 gives 145 for Req 4 and 98 for Req 3.
     long long priorityKey(int agingInterval) const;
 
-    // TODO(Farwa): allowed transitions (Report 4.3 figure):
+    // Allowed transitions (Report 4.3 figure):
     //   PENDING->ASSIGNED, ASSIGNED->IN_PROGRESS, IN_PROGRESS->COMPLETED,
     //   ASSIGNED->PENDING (robot offline / no route),
     //   IN_PROGRESS->PENDING (robot offline, work kept),
     //   PENDING->FAILED (simulation ends).
-    // See: report Section 4.3   |   Done when: invalid transition returns false
+    // Everything else is false; COMPLETED and FAILED are final.
     static bool isValidTransition(RequestState from, RequestState to);
 
-    // TODO(Farwa): same pattern as Robot::setState; the caller logs a rejection.
-    // See: report Section 4.3   |   Done when: invalid transition returns false and is logged
+    // Same pattern as Robot::setState; the caller logs a rejection.
     bool setState(RequestState newState);
 
     // Response time = completion step - report time (Report Appendix A).

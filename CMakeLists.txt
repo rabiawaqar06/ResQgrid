@@ -1,6 +1,6 @@
 # File:       CMakeLists.txt
 # Owner:      Sara
-# Purpose:    Builds the resqgrid program and the 4 test programs, turns
+# Purpose:    Builds the resqgrid program, the 5 test programs and 2 tools, turns
 #             warnings on.
 # Depends on: CMake >= 3.16, a C++17 compiler
 # Used by:    everyone ("one command builds everything")
@@ -8,7 +8,7 @@
 #
 #   cmake -S . -B build
 #   cmake --build build
-#   ctest --test-dir build         (runs the 4 tests)
+#   ctest --test-dir build         (runs the 5 tests)
 cmake_minimum_required(VERSION 3.16)
 project(ResQGrid LANGUAGES CXX)
 
@@ -65,7 +65,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
 
 # --- tests: each file has its own main() and is its own target -----------------
 enable_testing()
-foreach(test_name test_containers test_loader test_router test_coordinator)
+foreach(test_name test_containers test_robot_request test_loader test_router test_coordinator)
     add_executable(${test_name} tests/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE resqgrid_core)
     target_compile_definitions(${test_name} PRIVATE
@@ -73,3 +73,10 @@ foreach(test_name test_containers test_loader test_router test_coordinator)
     resqgrid_warnings(${test_name})
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
+
+# --- tools: scenario generator (performance runs) and invariant checker -------
+add_executable(gen_scenario tools/gen_scenario.cpp)
+resqgrid_warnings(gen_scenario)
+add_executable(check_invariants tools/check_invariants.cpp)
+target_link_libraries(check_invariants PRIVATE resqgrid_core)
+resqgrid_warnings(check_invariants)

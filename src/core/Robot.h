@@ -5,7 +5,7 @@
 //             (Report 4.1, 4.4, 4.5).
 // Depends on: Types, Queue
 // Used by:    World, ScenarioLoader, Coordinator, Movement, EventProcessor,
-//             Rerouter, Statistics, Renderer, UIApp
+//             Rerouter, Statistics, main.cpp (step mode)
 // Milestone:  M2
 //
 // Position (Report 4.1): if onConn == NO_INDEX the robot is AT `location`.
@@ -43,24 +43,22 @@ public:
     Robot() = default;
     Robot(int id, int startLocation, Capability cap, int maxBattery, int initialBattery);
 
-    // TODO(Farwa): true if capability is GENERAL or matches the category
-    // (MEDICAL serves MEDICAL, ...).
-    // See: report Section 6.2 (candidate rule)   |   Done when: GENERAL serves all 4 categories
+    // True if capability is GENERAL or matches the category
+    // (MEDICAL serves MEDICAL, ...). Report 6.2 (candidate rule).
     bool canServe(Category cat) const;
 
-    // TODO(Farwa): the allowed robot transitions from the Report 4.4 figure:
+    // The allowed robot transitions from the Report 4.4 figure:
     //   AVAILABLE->TRAVELLING, TRAVELLING->PERFORMING, PERFORMING->AVAILABLE,
     //   AVAILABLE->RETURNING, RETURNING->RECHARGING, RECHARGING->AVAILABLE,
-    //   any->OFFLINE, OFFLINE->AVAILABLE,
+    //   any other state->OFFLINE, OFFLINE->AVAILABLE,
     //   TRAVELLING->AVAILABLE / TRAVELLING->RETURNING (lost every route, 4.7),
     //   RECHARGING->RETURNING (station went down, 4.7).
-    // See: report Sections 4.4 and 4.7   |   Done when: invalid transition returns false
+    // Everything else (including X->X) is false.
     static bool isValidTransition(RobotState from, RobotState to);
 
-    // TODO(Farwa): if isValidTransition(state, newState) set it and return true;
+    // If isValidTransition(state, newState) set it and return true;
     // otherwise leave the state unchanged and return false. The CALLER logs the
     // rejection with Logger::invalidTransition (Robot does not depend on Logger).
-    // See: report Section 4.4   |   Done when: invalid transition returns false and is logged
     bool setState(RobotState newState);
 
     bool isOnRoad() const { return onConn != NO_INDEX; }

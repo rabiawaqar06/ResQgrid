@@ -5,7 +5,7 @@
 //             only usable if there were no errors (Report 9, 9.4).
 // Depends on: World (Environment, Robot, Request, HashMap, DynamicArray),
 //             MergeSort, Types
-// Used by:    Simulation, main.cpp (prints errors), UIApp (error screen),
+// Used by:    Simulation, main.cpp (prints errors),
 //             test_loader
 // Milestone:  M2
 //
@@ -38,7 +38,6 @@ public:
     // resolve references (IDs -> indices); stable-sort requests and events by
     // time (MergeSort); fill robotsById; build the ID -> index maps; init
     // request state. Return true only if there were no errors.
-    // See: report Sections 9 and 5.7   |   Done when: all 3 invalid files give exactly their planted errors
     bool load(const Str& path, World& world);
 
     int errorCount() const   { return errors.size(); }
@@ -48,18 +47,15 @@ public:
 
     // print "error: line <n>: <text>" for every error, then
     // "warning: line <n>: <text>" for every warning.
-    // See: report Section 9.4   |   Done when: invalid_02 prints 18 errors + 1 warning (E18, Report 9.4)
     void printMessages(ostream& out) const;
 
     // Split `line` on spaces/tabs into tokens[0..n-1]; returns n (no STL).
     // Public so test_loader can check it on its own.
     // handle multiple spaces and tabs; stop at MAX_TOKENS.
-    // See: plan Section 4 (line tokenizer)   |   Done when: "  1   Junction_1 JUNCTION " gives 3 tokens
     static int tokenize(const Str& line, Str tokens[], int maxTokens);
 
     // whole-string integer parse (optional leading '-'); false on
     // "", "12a", "3.5" or overflow.
-    // See: report Section 9.4 ("non-numeric number")   |   Done when: parseInt("12a") is false
     static bool parseInt(const Str& s, int& out);
 
 private:
@@ -83,7 +79,6 @@ private:
 
     // mergeSort requests and events by time; build robotsById
     // (mergeSort of indices by robot ID); rebuild requestIndex after the sort.
-    // See: report Section 5.7   |   Done when: Scenario 04 events come out in time order, ties in file order
     void sortAndIndex(World& world);
 
     DynamicArray<LoadMessage> errors;

@@ -1,0 +1,575 @@
+t=0 REQUEST request=1 at=17 category=MEDICAL urgency=1
+t=0 REQUEST request=2 at=31 category=SEARCH urgency=5
+t=0 REQUEST request=3 at=23 category=SUPPLY urgency=2
+t=0 ASSIGN request=2 robot=9 route=32-31 cost=5
+t=0 ASSIGN request=3 robot=7 route=38-31-30-23 cost=6
+t=0 ASSIGN request=1 robot=2 route=29-22-16-17 cost=7
+t=2 REQUEST request=4 at=10 category=SEARCH urgency=1
+t=2 ASSIGN request=4 robot=12 route=19-20-13-5-11-10 cost=19
+t=3 REQUEST request=5 at=20 category=FIRE urgency=5
+t=3 ASSIGN request=5 robot=4 route=32-25-26-19-20 cost=12
+t=4 ARRIVE robot=9 at=31
+t=4 STATE robot=9 TRAVELLING->PERFORMING
+t=4 STATE request=2 ASSIGNED->IN_PROGRESS
+t=5 REQUEST request=6 at=50 category=SUPPLY urgency=1
+t=5 REQUEST request=7 at=33 category=SEARCH urgency=5
+t=5 ASSIGN request=7 robot=8 route=36-37-38-39-33 cost=9
+t=5 ASSIGN request=6 robot=10 route=51-50 cost=7
+t=5 ARRIVE robot=7 at=23
+t=5 STATE robot=7 TRAVELLING->PERFORMING
+t=5 STATE request=3 ASSIGNED->IN_PROGRESS
+t=6 ARRIVE robot=2 at=17
+t=6 STATE robot=2 TRAVELLING->PERFORMING
+t=6 STATE request=1 ASSIGNED->IN_PROGRESS
+t=10 REQUEST request=8 at=15 category=SUPPLY urgency=5
+t=10 REQUEST request=9 at=7 category=MEDICAL urgency=1
+t=10 REQUEST request=10 at=33 category=MEDICAL urgency=3
+t=10 ASSIGN request=8 robot=6 route=2-9-15 cost=14
+t=10 ASSIGN request=10 robot=3 route=48-41-40-33 cost=7
+t=10 WARN no open charger reachable from request=9 battery reserve=0
+t=10 STATE request=1 IN_PROGRESS->COMPLETED
+t=10 COMPLETE request=1 robot=2 response=10
+t=10 STATE robot=2 PERFORMING->AVAILABLE
+t=11 STATE request=2 IN_PROGRESS->COMPLETED
+t=11 COMPLETE request=2 robot=9 response=11
+t=11 STATE robot=9 PERFORMING->AVAILABLE
+t=11 ARRIVE robot=10 at=50
+t=11 STATE robot=10 TRAVELLING->PERFORMING
+t=11 STATE request=6 ASSIGNED->IN_PROGRESS
+t=12 REQUEST request=11 at=23 category=SUPPLY urgency=3
+t=12 REQUEST request=12 at=52 category=SUPPLY urgency=2
+t=12 REQUEST request=13 at=25 category=MEDICAL urgency=3
+t=12 ASSIGN request=11 robot=11 route=56-49-42-34-33-39-38-31-30-23 cost=17
+t=12 ASSIGN request=13 robot=2 route=17-25 cost=4
+t=12 STATE request=3 IN_PROGRESS->COMPLETED
+t=12 COMPLETE request=3 robot=7 response=12
+t=12 STATE robot=7 PERFORMING->AVAILABLE
+t=13 ASSIGN request=12 robot=7 route=23-30-31-38-45-52 cost=14
+t=13 ARRIVE robot=8 at=33
+t=13 STATE robot=8 TRAVELLING->PERFORMING
+t=13 STATE request=7 ASSIGNED->IN_PROGRESS
+t=14 ARRIVE robot=4 at=20
+t=14 STATE robot=4 TRAVELLING->PERFORMING
+t=14 STATE request=5 ASSIGNED->IN_PROGRESS
+t=15 REQUEST request=14 at=25 category=FIRE urgency=3
+t=15 REQUEST request=15 at=33 category=MEDICAL urgency=2
+t=15 ASSIGN request=14 robot=5 route=16-17-25 cost=6
+t=15 ASSIGN request=15 robot=1 route=13-20-19-26-33 cost=11
+t=15 ARRIVE robot=2 at=25
+t=15 STATE robot=2 TRAVELLING->PERFORMING
+t=15 STATE request=13 ASSIGNED->IN_PROGRESS
+t=16 ARRIVE robot=3 at=33
+t=16 STATE robot=3 TRAVELLING->PERFORMING
+t=16 STATE request=10 ASSIGNED->IN_PROGRESS
+t=16 STATE request=6 IN_PROGRESS->COMPLETED
+t=16 COMPLETE request=6 robot=10 response=11
+t=16 STATE robot=10 PERFORMING->AVAILABLE
+t=18 STATE request=5 IN_PROGRESS->COMPLETED
+t=18 COMPLETE request=5 robot=4 response=15
+t=18 STATE robot=4 PERFORMING->AVAILABLE
+t=19 STATE request=7 IN_PROGRESS->COMPLETED
+t=19 COMPLETE request=7 robot=8 response=14
+t=19 STATE robot=8 PERFORMING->AVAILABLE
+t=20 EVENT BLOCK connection=22 (12-13)
+t=20 ARRIVE robot=5 at=25
+t=20 STATE robot=5 TRAVELLING->PERFORMING
+t=20 STATE request=14 ASSIGNED->IN_PROGRESS
+t=20 ARRIVE robot=12 at=10
+t=20 STATE robot=12 TRAVELLING->PERFORMING
+t=20 STATE request=4 ASSIGNED->IN_PROGRESS
+t=21 STATE request=13 IN_PROGRESS->COMPLETED
+t=21 COMPLETE request=13 robot=2 response=9
+t=21 STATE robot=2 PERFORMING->AVAILABLE
+t=22 STATE request=10 IN_PROGRESS->COMPLETED
+t=22 COMPLETE request=10 robot=3 response=12
+t=22 STATE robot=3 PERFORMING->AVAILABLE
+t=23 REQUEST request=16 at=55 category=FIRE urgency=1
+t=23 ASSIGN request=16 robot=4 route=20-19-26-27-34-42-49-48-54-55 cost=15
+t=23 STATE request=14 IN_PROGRESS->COMPLETED
+t=23 COMPLETE request=14 robot=5 response=8
+t=23 STATE robot=5 PERFORMING->AVAILABLE
+t=23 ARRIVE robot=6 at=15
+t=23 STATE robot=6 TRAVELLING->PERFORMING
+t=23 STATE request=8 ASSIGNED->IN_PROGRESS
+t=25 ARRIVE robot=1 at=33
+t=25 STATE robot=1 TRAVELLING->PERFORMING
+t=25 STATE request=15 ASSIGNED->IN_PROGRESS
+t=25 STATE request=8 IN_PROGRESS->COMPLETED
+t=25 COMPLETE request=8 robot=6 response=15
+t=25 STATE robot=6 PERFORMING->AVAILABLE
+t=26 ARRIVE robot=7 at=52
+t=26 STATE robot=7 TRAVELLING->PERFORMING
+t=26 STATE request=12 ASSIGNED->IN_PROGRESS
+t=26 STATE request=4 IN_PROGRESS->COMPLETED
+t=26 COMPLETE request=4 robot=12 response=24
+t=26 STATE robot=12 PERFORMING->AVAILABLE
+t=28 ARRIVE robot=11 at=23
+t=28 STATE robot=11 TRAVELLING->PERFORMING
+t=28 STATE request=11 ASSIGNED->IN_PROGRESS
+t=29 STATE request=12 IN_PROGRESS->COMPLETED
+t=29 COMPLETE request=12 robot=7 response=17
+t=29 STATE robot=7 PERFORMING->AVAILABLE
+t=30 STATE request=11 IN_PROGRESS->COMPLETED
+t=30 COMPLETE request=11 robot=11 response=18
+t=30 STATE robot=11 PERFORMING->AVAILABLE
+t=32 STATE request=15 IN_PROGRESS->COMPLETED
+t=32 COMPLETE request=15 robot=1 response=17
+t=32 STATE robot=1 PERFORMING->AVAILABLE
+t=35 EVENT BLOCK connection=3 (2-3)
+t=37 ARRIVE robot=4 at=55
+t=37 STATE robot=4 TRAVELLING->PERFORMING
+t=37 STATE request=16 ASSIGNED->IN_PROGRESS
+t=39 REQUEST request=17 at=53 category=FIRE urgency=4
+t=39 ASSIGN request=17 robot=5 route=25-32-40-41-48-54-53 cost=13
+t=40 REQUEST request=18 at=30 category=MEDICAL urgency=5
+t=40 ASSIGN request=18 robot=11 route=23-30 cost=1
+t=40 ARRIVE robot=11 at=30
+t=40 STATE robot=11 TRAVELLING->PERFORMING
+t=40 STATE request=18 ASSIGNED->IN_PROGRESS
+t=41 REQUEST request=19 at=45 category=MEDICAL urgency=1
+t=41 ASSIGN request=19 robot=1 route=33-39-45 cost=4
+t=43 STATE request=18 IN_PROGRESS->COMPLETED
+t=43 COMPLETE request=18 robot=11 response=3
+t=43 STATE robot=11 PERFORMING->AVAILABLE
+t=44 ARRIVE robot=1 at=45
+t=44 STATE robot=1 TRAVELLING->PERFORMING
+t=44 STATE request=19 ASSIGNED->IN_PROGRESS
+t=45 EVENT STATION_DOWN location=19
+t=45 STATE request=16 IN_PROGRESS->COMPLETED
+t=45 COMPLETE request=16 robot=4 response=22
+t=45 STATE robot=4 PERFORMING->AVAILABLE
+t=46 REQUEST request=20 at=27 category=FIRE urgency=5
+t=46 ASSIGN request=20 robot=4 route=55-54-48-49-42-34-27 cost=11
+t=47 STATE request=19 IN_PROGRESS->COMPLETED
+t=47 COMPLETE request=19 robot=1 response=6
+t=47 STATE robot=1 PERFORMING->AVAILABLE
+t=49 REQUEST request=21 at=15 category=SUPPLY urgency=1
+t=49 ASSIGN request=21 robot=6 route=15 cost=0
+t=49 ARRIVE robot=6 at=15
+t=49 STATE robot=6 TRAVELLING->PERFORMING
+t=49 STATE request=21 ASSIGNED->IN_PROGRESS
+t=51 ARRIVE robot=5 at=53
+t=51 STATE robot=5 TRAVELLING->PERFORMING
+t=51 STATE request=17 ASSIGNED->IN_PROGRESS
+t=51 STATE request=21 IN_PROGRESS->COMPLETED
+t=51 COMPLETE request=21 robot=6 response=2
+t=51 STATE robot=6 PERFORMING->AVAILABLE
+t=52 REQUEST request=22 at=44 category=FIRE urgency=1
+t=52 ASSIGN request=22 robot=10 route=50-51-44 cost=12
+t=55 EVENT UNBLOCK connection=22 (12-13)
+t=55 WARN no open charger reachable from request=9 battery reserve=0
+t=56 ARRIVE robot=4 at=27
+t=56 STATE robot=4 TRAVELLING->PERFORMING
+t=56 STATE request=20 ASSIGNED->IN_PROGRESS
+t=56 STATE request=17 IN_PROGRESS->COMPLETED
+t=56 COMPLETE request=17 robot=5 response=17
+t=56 STATE robot=5 PERFORMING->AVAILABLE
+t=57 REQUEST request=23 at=31 category=SUPPLY urgency=1
+t=57 ASSIGN request=23 robot=11 route=30-31 cost=3
+t=59 STATE request=20 IN_PROGRESS->COMPLETED
+t=59 COMPLETE request=20 robot=4 response=13
+t=59 STATE robot=4 PERFORMING->AVAILABLE
+t=59 ARRIVE robot=11 at=31
+t=59 STATE robot=11 TRAVELLING->PERFORMING
+t=59 STATE request=23 ASSIGNED->IN_PROGRESS
+t=60 EVENT UNBLOCK connection=11 (6-7)
+t=60 REQUEST request=24 at=26 category=FIRE urgency=2
+t=60 ASSIGN request=9 robot=2 route=25-26-19-20-13-6-7 cost=27
+t=60 ASSIGN request=24 robot=4 route=27-26 cost=1
+t=60 ARRIVE robot=4 at=26
+t=60 STATE robot=4 TRAVELLING->PERFORMING
+t=60 STATE request=24 ASSIGNED->IN_PROGRESS
+t=63 REQUEST request=25 at=14 category=SUPPLY urgency=5
+t=63 ASSIGN request=25 robot=12 route=10-11-5-13-20-14 cost=22
+t=63 ARRIVE robot=10 at=44
+t=63 STATE robot=10 TRAVELLING->PERFORMING
+t=63 STATE request=22 ASSIGNED->IN_PROGRESS
+t=63 STATE request=23 IN_PROGRESS->COMPLETED
+t=63 COMPLETE request=23 robot=11 response=6
+t=63 STATE robot=11 PERFORMING->AVAILABLE
+t=66 STATE request=24 IN_PROGRESS->COMPLETED
+t=66 COMPLETE request=24 robot=4 response=6
+t=66 STATE robot=4 PERFORMING->AVAILABLE
+t=68 REQUEST request=26 at=22 category=FIRE urgency=2
+t=68 ASSIGN request=26 robot=11 route=31-30-23-22 cost=8
+t=70 EVENT BLOCK connection=28 (15-22)
+t=71 REQUEST request=27 at=27 category=MEDICAL urgency=4
+t=71 ASSIGN request=27 robot=3 route=33-34-27 cost=6
+t=71 STATE request=22 IN_PROGRESS->COMPLETED
+t=71 COMPLETE request=22 robot=10 response=19
+t=71 STATE robot=10 PERFORMING->AVAILABLE
+t=75 WARN SET_URGENCY request=21 ignored: already COMPLETED
+t=75 ARRIVE robot=11 at=22
+t=75 STATE robot=11 TRAVELLING->PERFORMING
+t=75 STATE request=26 ASSIGNED->IN_PROGRESS
+t=76 ARRIVE robot=3 at=27
+t=76 STATE robot=3 TRAVELLING->PERFORMING
+t=76 STATE request=27 ASSIGNED->IN_PROGRESS
+t=77 STATE request=26 IN_PROGRESS->COMPLETED
+t=77 COMPLETE request=26 robot=11 response=9
+t=77 STATE robot=11 PERFORMING->AVAILABLE
+t=78 STATE request=27 IN_PROGRESS->COMPLETED
+t=78 COMPLETE request=27 robot=3 response=7
+t=78 STATE robot=3 PERFORMING->AVAILABLE
+t=80 EVENT ROBOT_OFFLINE robot=2
+t=80 STATE robot=2 TRAVELLING->OFFLINE
+t=80 RELEASE request=9 robot=2 reason=offline
+t=80 REQUEST request=28 at=8 category=MEDICAL urgency=4
+t=80 ASSIGN request=28 robot=11 route=22-16-9-8 cost=8
+t=80 ASSIGN request=9 robot=3 route=27-26-19-20-13-6-7 cost=22
+t=82 REQUEST request=29 at=54 category=SEARCH urgency=3
+t=82 ASSIGN request=29 robot=8 route=33-40-41-48-54 cost=8
+t=84 ARRIVE robot=12 at=14
+t=84 STATE robot=12 TRAVELLING->PERFORMING
+t=84 STATE request=25 ASSIGNED->IN_PROGRESS
+t=87 ARRIVE robot=11 at=8
+t=87 STATE robot=11 TRAVELLING->PERFORMING
+t=87 STATE request=28 ASSIGNED->IN_PROGRESS
+t=88 REQUEST request=30 at=11 category=MEDICAL urgency=3
+t=88 REQUEST request=31 at=43 category=MEDICAL urgency=1
+t=88 ASSIGN request=30 robot=1 route=45-38-32-25-18-11 cost=17
+t=88 ASSIGN request=31 robot=10 route=44-43 cost=9
+t=89 ARRIVE robot=8 at=54
+t=89 STATE robot=8 TRAVELLING->PERFORMING
+t=89 STATE request=29 ASSIGNED->IN_PROGRESS
+t=90 EVENT UNBLOCK connection=3 (2-3)
+t=90 STATE request=25 IN_PROGRESS->COMPLETED
+t=90 COMPLETE request=25 robot=12 response=27
+t=90 STATE robot=12 PERFORMING->AVAILABLE
+t=91 REQUEST request=32 at=45 category=SEARCH urgency=2
+t=91 REJECT request=32 robot=12 reason=battery need=39 have=23
+t=91 ASSIGN request=32 robot=9 route=31-38-45 cost=4
+t=91 STATE robot=12 AVAILABLE->RETURNING target=34
+t=91 STATE request=28 IN_PROGRESS->COMPLETED
+t=91 COMPLETE request=28 robot=11 response=11
+t=91 STATE robot=11 PERFORMING->AVAILABLE
+t=92 REQUEST request=33 at=30 category=FIRE urgency=4
+t=92 ASSIGN request=33 robot=11 route=8-9-16-23-30 cost=12
+t=93 REQUEST request=34 at=30 category=SUPPLY urgency=1
+t=93 ASSIGN request=34 robot=7 route=52-45-38-31-30 cost=13
+t=94 ARRIVE robot=9 at=45
+t=94 STATE robot=9 TRAVELLING->PERFORMING
+t=94 STATE request=32 ASSIGNED->IN_PROGRESS
+t=96 REQUEST request=35 at=9 category=MEDICAL urgency=4
+t=96 STATE request=29 IN_PROGRESS->COMPLETED
+t=96 COMPLETE request=29 robot=8 response=14
+t=96 STATE robot=8 PERFORMING->AVAILABLE
+t=96 ARRIVE robot=10 at=43
+t=96 STATE robot=10 TRAVELLING->PERFORMING
+t=96 STATE request=31 ASSIGNED->IN_PROGRESS
+t=100 EVENT STATION_UP location=19
+t=101 ARRIVE robot=3 at=7
+t=101 STATE robot=3 TRAVELLING->PERFORMING
+t=101 STATE request=9 ASSIGNED->IN_PROGRESS
+t=102 STATE request=32 IN_PROGRESS->COMPLETED
+t=102 COMPLETE request=32 robot=9 response=11
+t=102 STATE robot=9 PERFORMING->AVAILABLE
+t=102 STATE request=31 IN_PROGRESS->COMPLETED
+t=102 COMPLETE request=31 robot=10 response=14
+t=102 STATE robot=10 PERFORMING->AVAILABLE
+t=102 ARRIVE robot=12 at=34
+t=102 STATE robot=12 RETURNING->RECHARGING
+t=103 REQUEST request=36 at=26 category=MEDICAL urgency=3
+t=103 ASSIGN request=35 robot=10 route=43-36-29-22-16-9 cost=24
+t=103 ARRIVE robot=11 at=30
+t=103 STATE robot=11 TRAVELLING->PERFORMING
+t=103 STATE request=33 ASSIGNED->IN_PROGRESS
+t=104 ARRIVE robot=1 at=11
+t=104 STATE robot=1 TRAVELLING->PERFORMING
+t=104 STATE request=30 ASSIGNED->IN_PROGRESS
+t=104 STATE request=9 IN_PROGRESS->COMPLETED
+t=104 COMPLETE request=9 robot=3 response=94
+t=104 STATE robot=3 PERFORMING->AVAILABLE
+t=105 REQUEST request=37 at=21 category=SEARCH urgency=2
+t=105 REJECT request=36 robot=3 reason=battery need=38 have=23
+t=105 REJECT request=37 robot=9 reason=battery need=38 have=33
+t=105 ASSIGN request=37 robot=8 route=54-48-49-42-34-27-28-21 cost=19
+t=105 STATE robot=3 AVAILABLE->RETURNING target=6
+t=105 ARRIVE robot=7 at=30
+t=105 STATE robot=7 TRAVELLING->PERFORMING
+t=105 STATE request=34 ASSIGNED->IN_PROGRESS
+t=106 REQUEST request=38 at=39 category=SUPPLY urgency=5
+t=106 ASSIGN request=38 robot=6 route=15-9-16-23-30-31-38-39 cost=21
+t=107 STATE request=34 IN_PROGRESS->COMPLETED
+t=107 COMPLETE request=34 robot=7 response=14
+t=107 STATE robot=7 PERFORMING->AVAILABLE
+t=109 STATE request=30 IN_PROGRESS->COMPLETED
+t=109 COMPLETE request=30 robot=1 response=21
+t=109 STATE robot=1 PERFORMING->AVAILABLE
+t=109 STATE request=33 IN_PROGRESS->COMPLETED
+t=109 COMPLETE request=33 robot=11 response=17
+t=109 STATE robot=11 PERFORMING->AVAILABLE
+t=110 EVENT BLOCK connection=109 (32-40)
+t=110 REJECT request=36 robot=11 reason=battery need=30 have=19
+t=110 ASSIGN request=36 robot=1 route=11-5-13-20-19-26 cost=12
+t=110 STATE robot=11 AVAILABLE->RETURNING target=16
+t=111 ARRIVE robot=3 at=6
+t=111 STATE robot=3 RETURNING->RECHARGING
+t=114 ARRIVE robot=11 at=16
+t=114 STATE robot=11 RETURNING->RECHARGING
+t=118 REQUEST request=39 at=28 category=MEDICAL urgency=3
+t=118 REQUEST request=40 at=43 category=SEARCH urgency=4
+t=118 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=119 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=120 EVENT ROBOT_ONLINE robot=2
+t=120 STATE robot=2 OFFLINE->AVAILABLE
+t=120 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=120 ASSIGN request=39 robot=2 route=6-13-20-21-28 cost=21
+t=121 REQUEST request=41 at=17 category=MEDICAL urgency=2
+t=121 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=121 ARRIVE robot=1 at=26
+t=121 STATE robot=1 TRAVELLING->PERFORMING
+t=121 STATE request=36 ASSIGNED->IN_PROGRESS
+t=122 REQUEST request=42 at=41 category=SUPPLY urgency=2
+t=122 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=122 ASSIGN request=42 robot=7 route=30-31-38-39-46-47-41 cost=13
+t=122 STATE robot=12 RECHARGING->AVAILABLE
+t=123 REJECT request=40 robot=9 reason=battery need=35 have=33
+t=123 ASSIGN request=40 robot=12 route=34-33-39-38-37-36-43 cost=21
+t=123 ARRIVE robot=8 at=21
+t=123 STATE robot=8 TRAVELLING->PERFORMING
+t=123 STATE request=37 ASSIGNED->IN_PROGRESS
+t=125 EVENT STATION_DOWN location=46
+t=125 REQUEST request=43 at=30 category=MEDICAL urgency=3
+t=126 ARRIVE robot=6 at=39
+t=126 STATE robot=6 TRAVELLING->PERFORMING
+t=126 STATE request=38 ASSIGNED->IN_PROGRESS
+t=126 ARRIVE robot=10 at=9
+t=126 STATE robot=10 TRAVELLING->PERFORMING
+t=126 STATE request=35 ASSIGNED->IN_PROGRESS
+t=127 STATE request=37 IN_PROGRESS->COMPLETED
+t=127 COMPLETE request=37 robot=8 response=22
+t=127 STATE robot=8 PERFORMING->AVAILABLE
+t=128 STATE robot=8 AVAILABLE->RETURNING target=19
+t=128 STATE robot=3 RECHARGING->AVAILABLE
+t=129 ASSIGN request=43 robot=3 route=6-13-20-19-26-33-39-38-31-30 cost=27
+t=129 STATE request=36 IN_PROGRESS->COMPLETED
+t=129 COMPLETE request=36 robot=1 response=26
+t=129 STATE robot=1 PERFORMING->AVAILABLE
+t=130 EVENT UNBLOCK connection=28 (15-22)
+t=130 REJECT request=41 robot=1 reason=battery need=28 have=10
+t=130 STATE robot=1 AVAILABLE->RETURNING target=19
+t=130 ARRIVE robot=1 at=19
+t=130 STATE robot=1 RETURNING->RECHARGING
+t=131 REQUEST request=44 at=52 category=SEARCH urgency=4
+t=131 ASSIGN request=44 robot=9 route=45-52 cost=6
+t=132 REQUEST request=45 at=14 category=SUPPLY urgency=4
+t=132 STATE request=38 IN_PROGRESS->COMPLETED
+t=132 COMPLETE request=38 robot=6 response=26
+t=132 STATE robot=6 PERFORMING->AVAILABLE
+t=133 ASSIGN request=45 robot=6 route=39-33-26-19-20-14 cost=15
+t=134 REQUEST request=46 at=50 category=SEARCH urgency=2
+t=134 REQUEST request=47 at=24 category=SUPPLY urgency=3
+t=134 ARRIVE robot=7 at=41
+t=134 STATE robot=7 TRAVELLING->PERFORMING
+t=134 STATE request=42 ASSIGNED->IN_PROGRESS
+t=134 STATE request=35 IN_PROGRESS->COMPLETED
+t=134 COMPLETE request=35 robot=10 response=38
+t=134 STATE robot=10 PERFORMING->AVAILABLE
+t=134 STATE robot=11 RECHARGING->AVAILABLE
+t=135 REJECT request=47 robot=10 reason=battery need=28 have=4
+t=135 ASSIGN request=47 robot=11 route=16-17-24 cost=5
+t=135 REJECT request=41 robot=10 reason=battery need=22 have=4
+t=135 REJECT request=46 robot=10 reason=battery need=49 have=4
+t=135 STATE robot=10 AVAILABLE->RETURNING target=16
+t=136 ARRIVE robot=9 at=52
+t=136 STATE robot=9 TRAVELLING->PERFORMING
+t=136 STATE request=44 ASSIGNED->IN_PROGRESS
+t=136 ARRIVE robot=10 at=16
+t=136 STATE robot=10 RETURNING->RECHARGING
+t=137 ARRIVE robot=8 at=19
+t=137 STATE robot=8 RETURNING->RECHARGING
+t=139 STATE request=44 IN_PROGRESS->COMPLETED
+t=139 COMPLETE request=44 robot=9 response=8
+t=139 STATE robot=9 PERFORMING->AVAILABLE
+t=139 ARRIVE robot=11 at=24
+t=139 STATE robot=11 TRAVELLING->PERFORMING
+t=139 STATE request=47 ASSIGNED->IN_PROGRESS
+t=140 EVENT ROBOT_OFFLINE robot=7
+t=140 STATE robot=7 PERFORMING->OFFLINE
+t=140 RELEASE request=42 robot=7 reason=offline
+t=140 REJECT request=46 robot=9 reason=battery need=30 have=21
+t=140 STATE robot=9 AVAILABLE->RETURNING target=51
+t=140 ARRIVE robot=2 at=28
+t=140 STATE robot=2 TRAVELLING->PERFORMING
+t=140 STATE request=39 ASSIGNED->IN_PROGRESS
+t=141 REQUEST request=48 at=11 category=FIRE urgency=3
+t=141 ASSIGN request=48 robot=4 route=26-19-20-13-5-11 cost=12
+t=142 REQUEST request=49 at=40 category=FIRE urgency=3
+t=142 ASSIGN request=49 robot=5 route=53-54-48-41-40 cost=7
+t=143 ARRIVE robot=12 at=43
+t=143 STATE robot=12 TRAVELLING->PERFORMING
+t=143 STATE request=40 ASSIGNED->IN_PROGRESS
+t=144 REQUEST request=50 at=47 category=MEDICAL urgency=3
+t=145 ARRIVE robot=9 at=51
+t=145 STATE robot=9 RETURNING->RECHARGING
+t=147 STATE request=39 IN_PROGRESS->COMPLETED
+t=147 COMPLETE request=39 robot=2 response=29
+t=147 STATE robot=2 PERFORMING->AVAILABLE
+t=147 ARRIVE robot=6 at=14
+t=147 STATE robot=6 TRAVELLING->PERFORMING
+t=147 STATE request=45 ASSIGNED->IN_PROGRESS
+t=147 STATE request=47 IN_PROGRESS->COMPLETED
+t=147 COMPLETE request=47 robot=11 response=13
+t=147 STATE robot=11 PERFORMING->AVAILABLE
+t=147 STATE request=40 IN_PROGRESS->COMPLETED
+t=147 COMPLETE request=40 robot=12 response=29
+t=147 STATE robot=12 PERFORMING->AVAILABLE
+t=148 REJECT request=50 robot=2 reason=battery need=33 have=14
+t=148 ASSIGN request=50 robot=11 route=24-31-38-39-46-47 cost=12
+t=148 REJECT request=41 robot=2 reason=battery need=37 have=14
+t=148 ASSIGN request=41 robot=12 route=43-36-29-22-16-17 cost=24
+t=148 STATE robot=2 AVAILABLE->RETURNING target=19
+t=148 ARRIVE robot=5 at=40
+t=148 STATE robot=5 TRAVELLING->PERFORMING
+t=148 STATE request=49 ASSIGNED->IN_PROGRESS
+t=149 REQUEST request=51 at=28 category=MEDICAL urgency=2
+t=149 STATE robot=1 RECHARGING->AVAILABLE
+t=150 EVENT BLOCK connection=9 (5-6)
+t=150 ASSIGN request=51 robot=1 route=19-26-27-28 cost=10
+t=151 STATE request=49 IN_PROGRESS->COMPLETED
+t=151 COMPLETE request=49 robot=5 response=9
+t=151 STATE robot=5 PERFORMING->AVAILABLE
+t=152 REQUEST request=52 at=11 category=SEARCH urgency=3
+t=152 ARRIVE robot=4 at=11
+t=152 STATE robot=4 TRAVELLING->PERFORMING
+t=152 STATE request=48 ASSIGNED->IN_PROGRESS
+t=153 STATE robot=8 RECHARGING->AVAILABLE
+t=154 ASSIGN request=52 robot=8 route=19-20-13-5-11 cost=11
+t=154 STATE request=45 IN_PROGRESS->COMPLETED
+t=154 COMPLETE request=45 robot=6 response=22
+t=154 STATE robot=6 PERFORMING->AVAILABLE
+t=155 REJECT request=42 robot=6 reason=battery need=40 have=36
+t=155 STATE robot=6 AVAILABLE->RETURNING target=19
+t=155 ARRIVE robot=3 at=30
+t=155 STATE robot=3 TRAVELLING->PERFORMING
+t=155 STATE request=43 ASSIGNED->IN_PROGRESS
+t=156 STATE request=48 IN_PROGRESS->COMPLETED
+t=156 COMPLETE request=48 robot=4 response=15
+t=156 STATE robot=4 PERFORMING->AVAILABLE
+t=157 STATE robot=4 AVAILABLE->RETURNING target=19
+t=157 ARRIVE robot=2 at=19
+t=157 STATE robot=2 RETURNING->RECHARGING
+t=158 STATE robot=10 RECHARGING->AVAILABLE
+t=159 ASSIGN request=42 robot=10 route=16-23-30-31-38-39-46-47-41 cost=18
+t=159 ARRIVE robot=1 at=28
+t=159 STATE robot=1 TRAVELLING->PERFORMING
+t=159 STATE request=51 ASSIGNED->IN_PROGRESS
+t=159 ARRIVE robot=11 at=47
+t=159 STATE robot=11 TRAVELLING->PERFORMING
+t=159 STATE request=50 ASSIGNED->IN_PROGRESS
+t=160 EVENT UNBLOCK connection=109 (32-40)
+t=160 STATE request=43 IN_PROGRESS->COMPLETED
+t=160 COMPLETE request=43 robot=3 response=35
+t=160 STATE robot=3 PERFORMING->AVAILABLE
+t=160 STATE robot=9 RECHARGING->AVAILABLE
+t=161 REQUEST request=53 at=50 category=SEARCH urgency=4
+t=161 REQUEST request=54 at=35 category=SEARCH urgency=4
+t=161 REQUEST request=55 at=49 category=SEARCH urgency=3
+t=161 ASSIGN request=53 robot=9 route=51-50 cost=7
+t=161 ARRIVE robot=6 at=19
+t=161 STATE robot=6 RETURNING->RECHARGING
+t=162 STATE request=50 IN_PROGRESS->COMPLETED
+t=162 COMPLETE request=50 robot=11 response=18
+t=162 STATE robot=11 PERFORMING->AVAILABLE
+t=163 REQUEST request=56 at=37 category=FIRE urgency=3
+t=163 ASSIGN request=54 robot=11 route=47-41-48-49-42-35 cost=15
+t=163 ASSIGN request=56 robot=5 route=40-32-38-37 cost=10
+t=164 REQUEST request=57 at=43 category=SUPPLY urgency=5
+t=164 REQUEST request=58 at=20 category=MEDICAL urgency=4
+t=164 ASSIGN request=58 robot=3 route=30-31-38-39-33-26-19-20 cost=16
+t=164 ARRIVE robot=8 at=11
+t=164 STATE robot=8 TRAVELLING->PERFORMING
+t=164 STATE request=52 ASSIGNED->IN_PROGRESS
+t=165 STATE request=51 IN_PROGRESS->COMPLETED
+t=165 COMPLETE request=51 robot=1 response=16
+t=165 STATE robot=1 PERFORMING->AVAILABLE
+t=167 REQUEST request=59 at=28 category=MEDICAL urgency=1
+t=167 ASSIGN request=59 robot=1 route=28 cost=0
+t=167 ARRIVE robot=1 at=28
+t=167 STATE robot=1 TRAVELLING->PERFORMING
+t=167 STATE request=59 ASSIGNED->IN_PROGRESS
+t=167 ARRIVE robot=4 at=19
+t=167 STATE robot=4 RETURNING->RECHARGING
+t=167 ARRIVE robot=9 at=50
+t=167 STATE robot=9 TRAVELLING->PERFORMING
+t=167 STATE request=53 ASSIGNED->IN_PROGRESS
+t=168 STATE request=52 IN_PROGRESS->COMPLETED
+t=168 COMPLETE request=52 robot=8 response=16
+t=168 STATE robot=8 PERFORMING->AVAILABLE
+t=169 REQUEST request=60 at=17 category=SEARCH urgency=1
+t=169 ASSIGN request=55 robot=8 route=11-5-13-20-19-26-27-34-42-49 cost=18
+t=171 ARRIVE robot=12 at=17
+t=171 STATE robot=12 TRAVELLING->PERFORMING
+t=171 STATE request=41 ASSIGNED->IN_PROGRESS
+t=172 STATE request=59 IN_PROGRESS->COMPLETED
+t=172 COMPLETE request=59 robot=1 response=5
+t=172 STATE robot=1 PERFORMING->AVAILABLE
+t=172 ARRIVE robot=5 at=37
+t=172 STATE robot=5 TRAVELLING->PERFORMING
+t=172 STATE request=56 ASSIGNED->IN_PROGRESS
+t=174 STATE request=56 IN_PROGRESS->COMPLETED
+t=174 COMPLETE request=56 robot=5 response=11
+t=174 STATE robot=5 PERFORMING->AVAILABLE
+t=174 STATE request=53 IN_PROGRESS->COMPLETED
+t=174 COMPLETE request=53 robot=9 response=13
+t=174 STATE robot=9 PERFORMING->AVAILABLE
+t=175 EVENT STATION_UP location=46
+t=175 ASSIGN request=46 robot=9 route=50 cost=0
+t=175 ARRIVE robot=9 at=50
+t=175 STATE robot=9 TRAVELLING->PERFORMING
+t=175 STATE request=46 ASSIGNED->IN_PROGRESS
+t=176 ARRIVE robot=10 at=41
+t=176 STATE robot=10 TRAVELLING->PERFORMING
+t=176 STATE request=42 ASSIGNED->IN_PROGRESS
+t=177 STATE robot=2 RECHARGING->AVAILABLE
+t=177 ARRIVE robot=11 at=35
+t=177 STATE robot=11 TRAVELLING->PERFORMING
+t=177 STATE request=54 ASSIGNED->IN_PROGRESS
+t=179 ARRIVE robot=3 at=20
+t=179 STATE robot=3 TRAVELLING->PERFORMING
+t=179 STATE request=58 ASSIGNED->IN_PROGRESS
+t=179 STATE request=42 IN_PROGRESS->COMPLETED
+t=179 COMPLETE request=42 robot=10 response=57
+t=179 STATE robot=10 PERFORMING->AVAILABLE
+t=179 STATE request=54 IN_PROGRESS->COMPLETED
+t=179 COMPLETE request=54 robot=11 response=18
+t=179 STATE robot=11 PERFORMING->AVAILABLE
+t=179 STATE request=41 IN_PROGRESS->COMPLETED
+t=179 COMPLETE request=41 robot=12 response=58
+t=179 STATE robot=12 PERFORMING->AVAILABLE
+t=180 REJECT request=57 robot=12 reason=battery need=45 have=41
+t=180 ASSIGN request=57 robot=10 route=41-40-32-38-37-36-43 cost=23
+t=180 ASSIGN request=60 robot=12 route=17 cost=0
+t=180 STATE request=46 IN_PROGRESS->COMPLETED
+t=180 COMPLETE request=46 robot=9 response=46
+t=180 STATE robot=9 PERFORMING->AVAILABLE
+t=180 ARRIVE robot=12 at=17
+t=180 STATE robot=12 TRAVELLING->PERFORMING
+t=180 STATE request=60 ASSIGNED->IN_PROGRESS
+t=183 STATE request=58 IN_PROGRESS->COMPLETED
+t=183 COMPLETE request=58 robot=3 response=19
+t=183 STATE robot=3 PERFORMING->AVAILABLE
+t=184 STATE request=60 IN_PROGRESS->COMPLETED
+t=184 COMPLETE request=60 robot=12 response=15
+t=184 STATE robot=12 PERFORMING->AVAILABLE
+t=186 STATE robot=6 RECHARGING->AVAILABLE
+t=186 ARRIVE robot=8 at=49
+t=186 STATE robot=8 TRAVELLING->PERFORMING
+t=186 STATE request=55 ASSIGNED->IN_PROGRESS
+t=190 EVENT ROBOT_ONLINE robot=7
+t=190 STATE robot=7 OFFLINE->AVAILABLE
+t=190 STATE robot=4 RECHARGING->AVAILABLE
+t=193 STATE request=55 IN_PROGRESS->COMPLETED
+t=193 COMPLETE request=55 robot=8 response=32
+t=193 STATE robot=8 PERFORMING->AVAILABLE
+t=202 ARRIVE robot=10 at=43
+t=202 STATE robot=10 TRAVELLING->PERFORMING
+t=202 STATE request=57 ASSIGNED->IN_PROGRESS
+t=208 STATE request=57 IN_PROGRESS->COMPLETED
+t=208 COMPLETE request=57 robot=10 response=44
+t=208 STATE robot=10 PERFORMING->AVAILABLE
+t=210 EVENT UNBLOCK connection=9 (5-6)
+t=210 STATS completed=60 failed=0 unreachable=0 not_served=0 remaining=0 steps=211
+t=210 STATS avg_response=19.433333 max_response=94 utilization=50.750395 distance=785 battery_used=1383
+t=210 STATS conflicts=33 reassignments=2 reroutes=0 battery_rejections=19 dijkstra_runs=85

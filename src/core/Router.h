@@ -39,40 +39,33 @@ public:
     // Algorithm 1. dist[v] = INF_DIST, predLoc[v] = predConn[v] = -1
     // for all v; dist[s] = 0; lazy-deletion loop; relax only OPEN connections.
     // Increments runCount (for the performance experiments, Report 12.2).
-    // See: report Section 6.1 (Algorithm 1)   |   Done when: Scenario 01 key costs all match
     void run(int source);
 
     int source() const { return src; }
 
     // dist[loc] from the last run (INF_DIST if unreachable or no run yet).
-    // See: report Section 6.1   |   Done when: Scenario 01: 1->5 = 8, 7->6 = 6, 8->7 = 9
     int distanceTo(int loc) const;
 
     // distanceTo(loc) < INF_DIST.
-    // See: report Section 4.6   |   Done when: cut-off location in Scenario 02 is unreachable
     bool reachable(int loc) const;
 
     // fill `out` with the route start -> source by following
     // predConn[] from `start` (use after a run FROM THE REQUEST). Clears `out`
     // first. Returns false if start is unreachable.
-    // See: report Section 6.1   |   Done when: Scenario 01 Robot 1 gets 1-3-2-5
     bool routeFrom(int start, Queue<int>& out) const;
 
     // fill `out` with the route source -> target (use after a run
     // FROM THE ROBOT). Follow pred[] back from target, then reverse (no STL:
     // e.g. collect into a DynamicArray and enqueue backwards). False if unreachable.
-    // See: report Sections 4.5 and 4.7   |   Done when: Scenario 01 Robot 2 gets 8-6-5-7
     bool routeTo(int target, Queue<int>& out) const;
 
     // index of the OPEN charger with the smallest dist from the last
     // run's source; NO_INDEX if none is reachable. Ties (team decision): the
     // smaller location ID wins.
-    // See: report Sections 4.5 and 6.1   |   Done when: Scenario 01 Robot 2 picks charger 7
     int nearestOpenCharger() const;
 
     // location IDs along the route joined with '-', e.g. "2-4-7-5",
     // starting at startLoc (for the log). Empty route -> just the start ID.
-    // See: report Section 9.5   |   Done when: matches the REROUTE example in the README
     Str routeToString(int startLoc, const Queue<int>& route) const;
 
     int runs() const { return runCount; }

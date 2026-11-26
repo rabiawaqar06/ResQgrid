@@ -24,35 +24,77 @@ public:
 
     LinkedList() : head(nullptr), tail(nullptr), count(0) {}
 
-    // TODO(Farwa): deep copy, node by node, keeping the same order.
-    // Needed because DynamicArray<LinkedList<...>> copies lists when it grows.
-    // See: report Section 5.4   |   Done when: copy has same values; changing it leaves the original unchanged
-    LinkedList(const LinkedList& other) : head(nullptr), tail(nullptr), count(0) { (void)other; }
+    LinkedList(const LinkedList& other) : head(nullptr), tail(nullptr), count(0) {
+        Node* current = other.head;
+        while (current != nullptr) {
+            pushBack(current->value);
+            current = current->next;
+        }
+    }
 
-    // TODO(Farwa): self-assignment check, clear(), deep copy, return *this.
-    // See: report Section 5.4   |   Done when: a = a; and a = b; both work with no leak
-    LinkedList& operator=(const LinkedList& other) { (void)other; return *this; }
+    LinkedList& operator=(const LinkedList& other) {
+        if (this == &other) {
+            return *this;
+        }
+        clear();
+        Node* current = other.head;
+        while (current != nullptr) {
+            pushBack(current->value);
+            current = current->next;
+        }
+        return *this;
+    }
 
-    // TODO(Farwa): call clear().
-    // See: plan Section 6 "destructor frees every node"   |   Done when: no leaks
-    ~LinkedList() {}
+    ~LinkedList() {
+        clear();
+    }
 
-    // TODO(Farwa): insert at the front in O(1); update tail if the list was empty.
-    // See: plan Section 6   |   Done when: test push, pop, iterate, no leaks
-    void pushFront(const T& value) { (void)value; }
+    void pushFront(const T& value) {
+        Node* node = new Node(value);
+        node->next = head;
+        head = node;
+        if (tail == nullptr) {
+            tail = node;
+        }
+        count++;
+    }
 
-    // TODO(Farwa): insert at the back in O(1) using tail.
-    // See: plan Section 6   |   Done when: iteration order equals push order
-    void pushBack(const T& value) { (void)value; }
+    void pushBack(const T& value) {
+        Node* node = new Node(value);
+        if (head == nullptr) {
+            head = node;
+            tail = node;
+        } else {
+            tail->next = node;
+            tail = node;
+        }
+        count++;
+    }
 
-    // TODO(Farwa): if empty return false; else copy head value into `out`,
-    // delete the head node, fix tail when the list becomes empty, return true.
-    // See: report Section 5.8   |   Done when: test push, pop, iterate, no leaks
-    bool popFront(T& out) { (void)out; return false; }
+    bool popFront(T& out) {
+        if (head == nullptr) {
+            return false;
+        }
+        Node* old = head;
+        out = old->value;
+        head = head->next;
+        if (head == nullptr) {
+            tail = nullptr;
+        }
+        delete old;
+        count--;
+        return true;
+    }
 
-    // TODO(Farwa): delete every node; head = tail = nullptr; count = 0.
-    // See: plan Section 6   |   Done when: no leaks
-    void clear() {}
+    void clear() {
+        while (head != nullptr) {
+            Node* nextNode = head->next;
+            delete head;
+            head = nextNode;
+        }
+        tail = nullptr;
+        count = 0;
+    }
 
     // First node for iteration (nullptr when empty). Front value: first()->value.
     Node*       first()       { return head; }

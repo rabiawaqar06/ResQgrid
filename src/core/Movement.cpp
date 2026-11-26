@@ -121,8 +121,7 @@ void Movement::move(Robot& r, int t) {
     }
 }
 
-void Movement::arrive(Robot& r, int t) {
-    (void)t;
+void Movement::arrive(Robot& r, int /* t: not needed, the logger has the time */) {
     log.arrive(r.id, world.env.locations[r.location].id);
 
     if (r.state == RobotState::TRAVELLING) {

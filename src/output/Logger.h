@@ -2,10 +2,10 @@
 // Owner:      Farwa
 // Purpose:    Writes one line per state change in the agreed format (README
 //             "Log format", Report 9.5) to the console and/or a file, and keeps
-//             the last lines in memory for the UI log panel.
+//             the last lines in memory (step-mode "log" command).
 // Depends on: Types
 // Used by:    Coordinator, Movement, EventProcessor, Rerouter, Simulation,
-//             Statistics, main.cpp, UIApp
+//             Statistics, main.cpp
 // Milestone:  M2
 //
 // Every line starts with "t=<time> <KIND>" followed by key=value fields,
@@ -21,13 +21,12 @@
 
 class Logger {
 public:
-    static const int RECENT_CAPACITY = 200;   // lines kept for the UI log panel
+    static const int RECENT_CAPACITY = 200;   // lines kept for the step-mode "log" command
 
     Logger();
     ~Logger();
 
-    // TODO(Farwa): open (truncate) `path` for writing; false if it cannot be opened.
-    // See: report Section 9.5   |   Done when: --log output/x.txt creates the file
+    // Open (truncate) `path` for writing; false if it cannot be opened.
     bool openFile(const Str& path);
 
     void setConsole(bool on) { toConsole = on; }   // --quiet turns the console off
@@ -52,7 +51,7 @@ public:
     void warning(const Str& message);
     void invalidTransition(const Str& what, int id, const Str& from, const Str& to);
 
-    // --- UI log panel: 0 = oldest kept line, recentCount()-1 = newest ---
+    // --- recent lines: 0 = oldest kept line, recentCount()-1 = newest ---
     int        recentCount() const { return recentSize; }
     const Str& recent(int i) const;
 

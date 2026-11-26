@@ -1,352 +1,464 @@
-<!--
-File:       README.md
-Owner:      Farwa
-Purpose:    How to build, run and contribute to ResQGrid; who owns what.
-Depends on: docs/report.pdf, docs/project_spec.pdf (the development plan is shared privately, never committed)
-Used by:    everyone, and the evaluator ("clean clone builds and runs from README alone")
-Milestone:  M0 (skeleton) -> M5 (final build/run/format sections)
--->
-
 # ResQGrid: AI Rescue Robots
 
-ResQGrid (ResQ = rescue, Grid = the city graph) is a C++17 rescue-coordination simulator for our Data
-Structures final project (team: Sara, Rabia, Farwa). It loads a disaster map from a text file:
-locations, roads (some blocked), rescue robots, rescue requests and timed events. Then it advances
-the world one discrete time step at a time. Every step it applies events, admits new requests,
-reroutes robots whose roads closed, assigns waiting requests to robots, moves the robots, and
-updates their battery. It writes a structured log line for every state change and prints final
-statistics at the end. All data structures are our own: **no STL containers**.
+**Data Structures Lab, Fall 2026 · FAST-NUCES Islamabad · Instructor: Mam Kainat Iqbal**
 
-The design is final and is described in **docs/report.pdf**. This repository is a **skeleton**:
-every class and function is declared, but real logic is marked `TODO(<Owner>)`. The skeleton
-compiles and runs on day 1.
+ResQGrid is a C++17 console simulator that coordinates a fleet of autonomous rescue robots in a
+disaster-hit city. It reads the whole scenario from a text file, runs the simulation in discrete
+time steps, writes a log line for every change, and prints final statistics. All data
+structures are written by us: **no STL containers and no external libraries**. The same input
+always gives byte-identical output.
 
-### Features
-- Loads any scenario in the spec format and validates it, reporting **every** error with its line number.
-- Map stored as an adjacency list with shared connection records: blocking a road takes effect in both directions at once.
-- Dijkstra (binary min-heap, lazy deletion) over OPEN roads only, run **from the request** so one pass covers all robots.
+## Team
+
+| Member | Roll no. | Built |
+|---|---|---|
+| **Rabia Waqar** | 25I-0166 | `HashMap.h`, `MinHeap.h`, `World.h`, `Environment.*`, `Router.*` (Dijkstra with lazy deletion), `ScenarioLoader.*` (parsing + validation), `EventProcessor.*`, `Rerouter.*`, `test_loader.cpp`, `test_router.cpp`, scenario_04 fix. *The map, shortest paths, reading and checking input files, dynamic events and rerouting.* |
+| **Sarah Mahmood** | 25I-027 | `IndexedMaxHeap.h`, `Coordinator.*` (assignment), `Movement.*` (movement/battery/recharging), `Simulation.*` (7-phase step loop), `test_coordinator.cpp`, `CMakeLists.txt`, scenario files. *Who serves which request, how robots move and use battery, and the step loop that ties everything together.* |
+| **Farwa Abid** | 25I-2083 | `DynamicArray.h`, `LinkedList.h`, `Queue.h`, `MergeSort.h`, `Types.h`, `Robot.*`, `Request.*`, `Logger.*`, `Statistics.*`, `main.cpp`, `test_containers.cpp`. *The basic containers, the robot and request state machines, the log, the statistics and the command-line program.* |
+
+`Types.h` and `World.h` (the shared enums and the world data) were agreed by all three of us on day 1.
+
+---
+
+## Problem overview
+
+A city is a graph: **locations** (junctions, buildings, hospitals, depots, charging stations, a
+command post) joined by **undirected weighted roads**, some of which are BLOCKED. **Robots** have a
+capability (MEDICAL, FIRE, SUPPLY, SEARCH or GENERAL) and a battery. **Rescue requests** appear
+over time with a category, an urgency 1-5 and a work duration. **Events** change the world while it
+runs: roads close and reopen, charging stations go down and come back up, urgencies change, robots go
+offline and come back. The simulator decides, every step, which robot serves which request, moves the
+robots along shortest open paths, manages their batteries, and reacts to every event.
+
+## Features (all working and tested)
+
+- Loads a complete scenario from a file; `data/scenario_provided.txt` loads and runs **unchanged**.
+- Validates the input and reports **every** error with its line number, without crashing (exit code 2).
+- Map as an adjacency list with shared road records: blocking a road affects both directions at once.
+- Dijkstra (binary min-heap, lazy deletion) over OPEN roads only, run **from the request**, so one
+  run gives the distance to every robot and to the nearest open charger.
 - Pending requests in an **indexed max-heap** with an aging key (no starvation) and change-key for `SET_URGENCY`.
-- Deterministic assignment with documented tie-breaks, battery feasibility with a charger reserve, and conflict counting.
+- Deterministic assignment with documented tie-breaks, a battery check with a charger reserve, and conflict counting.
 - Battery use for moving and working, recharging at open stations, and a low-battery return rule.
-- All 7 event types (`BLOCK`, `UNBLOCK`, `STATION_DOWN`, `STATION_UP`, `SET_URGENCY`, `ROBOT_OFFLINE`, `ROBOT_ONLINE`).
-- Rerouting policy for robots on, or heading towards, a blocked road or a down charging station.
-- Plain-text, one-line-per-change log (console and/or file) plus final statistics.
-- Optional SFML 3 window: map, moving robots, step / play / pause / speed controls, panels, final-stats screen and error screen.
+- All 7 event types, applied in file order; rerouting for robots on or heading towards a closed road or a closed charger.
+- A full automatic run, or an **interactive step mode** (`--step`) that shows the environment, the robots and the requests at any step.
+- A plain-text log (console and/or file), one line per change, plus final statistics.
+- Tools: a seeded scenario generator for the performance runs, and an invariant checker.
 
 ---
 
-## Team decisions (Day 1)
+## Build
 
-| Question | Decision |
-|---|---|
-| `std::string` allowed? | **Yes.** `Types.h` has `using namespace std;` (don't write `std::`) and `using Str = string;`. Always write `Str`, so we can swap in our own String class later by editing one line. |
-| SFML version | **SFML 3.0** (3.0.2 tested). Use only the 3.0 API (`openFromFile`, `pollEvent()` returning an optional, `sf::VideoMode({w, h})`). |
-| Log format | Plain text, one line per change, `t=<step> <KIND> key=value ...` (see [Log format](#log-format)). |
-| Allowed std headers | `<iostream>`, `<fstream>`, `<string>`, `<cstring>`, `<cstdlib>`, `<chrono>`. SFML may use STL internally; that's fine. |
+**Requirements:** a C++17 compiler (g++ 9+, clang, or MSVC from Visual Studio 2019/2022) and CMake 3.16 or newer. No other libraries.
 
----
-
-## Build and run
-
-### Linux (Ubuntu / Debian)
+### Linux / macOS
 ```bash
-sudo apt install build-essential cmake libsfml-dev     # Ubuntu 26.04 ships SFML 3.0.x
 cmake -S . -B build
-cmake --build build -j
-ctest --test-dir build              # runs the 4 test programs
+cmake --build build
 ./build/resqgrid data/scenario_provided.txt
 ```
-If your distribution only ships SFML 2.x, build SFML 3.0 from source (github.com/SFML/SFML, tag
-`3.0.2`) and pass `-DSFML_DIR=<install>/lib/cmake/SFML`. You can also configure with
-`-DRESQGRID_GUI=OFF` to build the console program and tests without SFML.
 
-### Windows
-1. Install Visual Studio 2022 (Desktop development with C++), which includes CMake.
-2. Download **SFML 3.0.x** for your exact compiler from sfml-dev.org (for example the Visual C++ 17 (2022) 64-bit build) and unzip it, e.g. to `C:\SFML-3.0.2`.
-   Alternative: `vcpkg install sfml`, then pass the vcpkg toolchain file to CMake.
-3. In a "Developer PowerShell for VS 2022":
-   ```powershell
-   cmake -S . -B build -DSFML_DIR=C:/SFML-3.0.2/lib/cmake/SFML
-   cmake --build build --config Debug
-   ctest --test-dir build -C Debug
-   .\build\Debug\resqgrid.exe data\scenario_provided.txt
-   ```
-4. For `--gui`, copy the SFML DLLs from `C:\SFML-3.0.2\bin` next to `resqgrid.exe`, or add that folder to `PATH`.
-
-With MinGW, the SFML download must match your MinGW version exactly; otherwise use MSVC.
-
-**SFML is optional at configure time.** If CMake cannot find SFML 3, it prints a warning and builds
-everything except the window. `--gui` then exits with a clear error.
-
-### Command line
+### Windows (Visual Studio 2022, "Developer PowerShell for VS")
+```powershell
+cmake -S . -B build
+cmake --build build
+.\build\Debug\resqgrid.exe data\scenario_provided.txt
 ```
-resqgrid <scenario_file> [--gui] [--log <path>] [--quiet]
+(The Visual Studio generator puts programs in `build\Debug\`. With `-G Ninja` they go straight into `build\`.)
+
+### Without CMake (one line)
+```bash
+g++ -std=c++17 -Wall -Wextra -Isrc src/main.cpp src/core/*.cpp src/output/*.cpp -o resqgrid
 ```
-| Example | What it does |
-|---|---|
-| `resqgrid data/scenario_provided.txt` | console run: log lines + final statistics |
-| `resqgrid data/scenario_provided.txt --gui` | opens the SFML window |
-| `resqgrid data/scenario_05_stress.txt --log output/stress_log.txt --quiet` | log to a file only, then print statistics |
-| `resqgrid data/invalid/invalid_02_bad_values_and_references.txt` | prints every validation error, exit code 2 |
+The tools build the same way, for example
+`g++ -std=c++17 -Isrc tools/check_invariants.cpp src/core/*.cpp src/output/*.cpp -o check_invariants`
+and `g++ -std=c++17 tools/gen_scenario.cpp -o gen_scenario`.
 
-Exit codes: `0` ok, `1` bad arguments (or `--gui` in a build without SFML), `2` invalid scenario file.
-
-Day-1 behaviour: the program runs and prints `=== Final statistics (not implemented yet) ===`.
-Every test prints its `TODO` items and passes.
+A Release build (`cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release`) is what we used for timing.
 
 ---
 
-## Folder structure and owners
+## Run
 
 ```
-resqgrid/
-|-- CMakeLists.txt                     Sara
-|-- README.md                          Farwa
-|-- .gitignore                         Sara
-|-- src/
-|   |-- main.cpp                       Farwa   (Sara adds the --gui branch)
-|   |-- containers/                    header-only
-|   |   |-- DynamicArray.h             Farwa
-|   |   |-- LinkedList.h               Farwa
-|   |   |-- Queue.h                    Farwa
-|   |   |-- MergeSort.h                Farwa
-|   |   |-- HashMap.h                  Rabia
-|   |   |-- MinHeap.h                  Rabia
-|   |   `-- IndexedMaxHeap.h           Sara
-|   |-- core/
-|   |   |-- Types.h                    Shared (committed by Farwa)
-|   |   |-- World.h                    Shared (committed by Rabia)
-|   |   |-- Robot.h / .cpp             Farwa
-|   |   |-- Request.h / .cpp           Farwa
-|   |   |-- Environment.h / .cpp       Rabia
-|   |   |-- Router.h / .cpp            Rabia
-|   |   |-- ScenarioLoader.h / .cpp    Rabia
-|   |   |-- EventProcessor.h / .cpp    Rabia
-|   |   |-- Rerouter.h / .cpp          Rabia
-|   |   |-- Coordinator.h / .cpp       Sara
-|   |   |-- Movement.h / .cpp          Sara
-|   |   `-- Simulation.h / .cpp        Sara
-|   |-- output/
-|   |   |-- Logger.h / .cpp            Farwa
-|   |   `-- Statistics.h / .cpp        Farwa
-|   `-- ui/                            Renderer and UIApp need SFML 3; GraphLayout does not
-|       |-- GraphLayout.h / .cpp       Sara
-|       |-- Renderer.h / .cpp          Sara
-|       `-- UIApp.h / .cpp             Sara
-|-- tests/                             each file has its own main() and CMake target
-|   |-- test_containers.cpp            Farwa   (DynamicArray, LinkedList, Queue, MergeSort, Types)
-|   |-- test_loader.cpp                Rabia   (HashMap, ScenarioLoader)
-|   |-- test_router.cpp                Rabia   (MinHeap, Environment, Router)
-|   `-- test_coordinator.cpp           Sara    (IndexedMaxHeap, Coordinator, Scenario 01 run)
-|-- data/                              scenario files (do not edit, except the scenario_04 fix below)
-|-- docs/                              report.pdf, project_spec.pdf (the development plan is NOT in the repo)
-`-- output/                            logs are written here (gitignored except .gitkeep)
+resqgrid <scenario_file> [--log <path>] [--quiet] [--step]
 ```
 
-Every source file starts with a header comment (`File / Owner / Purpose / Depends on / Used by /
-Milestone`). Every stub body has:
-```cpp
-// TODO(<Owner>): what to implement
-// See: report Section x.y   |   Done when: <check from the plan>
-```
-To find your work: `grep -rn "TODO(Farwa)" src tests` (or `Rabia`, `Sara`).
-
-## Who does what
-
-| Person | Files | Count | Character of the work |
-|---|---|---|---|
-| **Farwa** | DynamicArray.h, LinkedList.h, Queue.h, MergeSort.h, Types.h, Robot.h/.cpp, Request.h/.cpp, Logger.h/.cpp, Statistics.h/.cpp, main.cpp, test_containers.cpp, README.md | **16** | Many short, self-contained files; easy to test in isolation |
-| **Rabia** | HashMap.h, MinHeap.h, World.h, Environment.h/.cpp, Router.h/.cpp, ScenarioLoader.h/.cpp, EventProcessor.h/.cpp, Rerouter.h/.cpp, test_loader.cpp, test_router.cpp | **15** | Graph, Dijkstra, file parsing and validation, events |
-| **Sara** | IndexedMaxHeap.h, Coordinator.h/.cpp, Movement.h/.cpp, Simulation.h/.cpp, GraphLayout.h/.cpp, Renderer.h/.cpp, UIApp.h/.cpp, test_coordinator.cpp, CMakeLists.txt | **15** | Coordination core plus the whole SFML UI |
-
-Rabia also applies the scenario_04 data fix (see [Known issues](#known-issues)).
-
-## Dependency order
-
-Each layer only uses layers above it, and everything within a layer can be built in parallel.
-All headers already exist, so code against the signatures even before the `.cpp` behind them is written.
-
-| Layer | Modules |
+| Option | Meaning |
 |---|---|
-| Day 1 | Types.h, World.h, all headers (signatures only): **done in this skeleton** |
-| L1 | DynamicArray, LinkedList, Queue, MergeSort (Farwa); HashMap, MinHeap (Rabia); IndexedMaxHeap (Sara) |
-| L2 | Robot, Request, Logger (Farwa); Environment (Rabia); GraphLayout (Sara) |
-| L3 | Statistics (Farwa); ScenarioLoader, Router (Rabia); Renderer (Sara) |
-| L4 | EventProcessor, Rerouter (Rabia); Coordinator, Movement (Sara) |
-| L5 | Simulation (Sara) |
-| L6 | main.cpp console (Farwa); UIApp (Sara) |
+| *(none)* | Full automatic run: log lines on the console, then the final statistics. |
+| `--log <path>` | Also write the log to `<path>` (the file ends with the `STATS` lines). |
+| `--quiet` | Do not print log lines on the console (statistics are still printed). |
+| `--step` | Interactive step mode (commands below). |
 
-**What you can start on immediately**
+Exit codes: `0` ok, `1` bad command line, `2` invalid scenario file (all errors are printed), `3` the log file cannot be created.
 
-| Person | Independent work (needs nobody else's code) |
+Examples:
+```bash
+./build/resqgrid data/scenario_provided.txt
+./build/resqgrid data/scenario_provided.txt --log output/provided_log.txt --quiet
+./build/resqgrid data/scenario_05_stress.txt --log output/scenario_05_log.txt --quiet
+./build/resqgrid data/invalid/invalid_02_bad_values_and_references.txt      # lists 18 errors + 1 warning, exit 2
+./build/resqgrid data/scenario_01_tiny_trace.txt --step
+```
+
+### Step mode commands
+
+| Command | Does |
 |---|---|
-| Farwa | DynamicArray and LinkedList first (everyone needs them, **aim to merge on 16 Nov**), then Queue, MergeSort, test_containers.cpp, then Robot and Request. |
-| Rabia | HashMap and MinHeap (with a temporary raw array until DynamicArray is merged), the line tokenizer and the error-collection part of the loader. |
-| Sara | IndexedMaxHeap with its test; SFML window, GraphLayout and Renderer on a hardcoded 5-location graph. |
+| `s` | Run one time step and print its log lines. |
+| `n <k>` | Run `k` steps. |
+| `env` | Environment: every location (chargers shown UP/DOWN), every road with cost and OPEN/BLOCKED, network version. |
+| `robots` | Every robot: capability, state, battery/max, location *or* road position (`on road 9 (8->6, 1/3)`), request, target. |
+| `requests` | Requests grouped as PENDING / ASSIGNED / IN_PROGRESS / COMPLETED / FAILED / not reported yet, plus the pending max-heap. |
+| `stats` | Counts so far; the full final statistics once the run is finished. |
+| `log [k]` | The last `k` log lines (default 20), useful together with `--quiet`. |
+| `run` | Run to the end. |
+| `help`, `q` | Command list; quit. |
 
-How to avoid waiting on each other: until Logger is real, `Logger::write` already prints to the
-console (that's the day-1 stub). Until Router is real, Coordinator can be tested with a
-hand-filled distance array.
+The print commands only read the simulation; they never change it. Input can be piped, e.g.
+`printf "s\nenv\nrobots\nrequests\nn 5\nstats\nrun\nq\n" | ./build/resqgrid data/scenario_01_tiny_trace.txt --step`
+(the output of exactly this is in `output/step_mode_demo.txt`).
 
-## Milestones (15-26 Nov 2026)
-
-| | Dates | Farwa | Rabia | Sara | Check that proves it |
-|---|---|---|---|---|---|
-| **M0** | 15 Nov | Kickoff | Kickoff | Kickoff, CMake | Empty program builds on all laptops |
-| **M1** | 16-17 Nov | DynamicArray, LinkedList, Queue, MergeSort, test_containers | HashMap, MinHeap | IndexedMaxHeap, SFML window + layout on fake graph | All container tests pass; window shows a fake map |
-| **M2** | 18-19 Nov | Robot, Request (state checks), Logger | Environment, ScenarioLoader, Router, test_loader, test_router | Renderer draws the loaded map; start Coordinator | 3 invalid files rejected with all errors; Scenario 01 route costs match its comments; provided file draws on screen |
-| **M3** | 20-21 Nov | Statistics; main.cpp console mode | EventProcessor, Rerouter | Coordinator, Movement, Simulation | Scenario 01 runs to the end and matches the hand trace (Report, Appendix A); Scenario 03 matches |
-| **M4** | 22 Nov | Help test; fix bugs in own files | Scenarios 02 and 04 match | UIApp connected to step(): play / pause / step / speed, panels | All 5 scenarios match their expected outcome; GUI runs the provided file |
-| **M5** | 23-24 Nov | Timing experiments (56/120/250/500/1000 locations), results table; README | Stress run, invariant checks | Final-stats screen, error screen, polish | Two runs give identical logs; no battery < 0; no blocked road used |
-| **M6** | 25-26 Nov | Report sections | Report sections | Assemble report, final build, submit | Clean clone builds and runs from README alone |
-
-Don't start the next milestone's integration until the current check passes.
-
----
-
-## Simulation rules (summary)
-
-The full rules are in **docs/report.pdf, Section 4**. They are fixed: don't change them in code.
-
-**One step at time t: 7 phases, always in this order** (Report 4.2):
-1. **Events**: apply every event with time t, in file order (Report 6.3).
-2. **New requests**: requests with `report_time == t` become PENDING and enter the priority queue, in file order.
-3. **Reroute check**: only if a road or station changed in phase 1, and only *after all* events of the step, so a block and unblock in the same step cause no rerouting (Report 4.7).
-4. **Assignment**: match pending requests to available robots (Report 6.2, Algorithm 2).
-5. **Low battery**: an idle robot below `low_battery_percent` (default 30%) of its maximum goes to the nearest open charger.
-6. **Action**: robots act in increasing ID order (move, work or recharge); battery is updated.
-7. **Record**: log lines and statistics for the step.
-
-**Movement** (Report 4.1): a robot travels `speed` cost units per step and can cross a location
-mid-step. A robot that reaches its request location starts work in the **next** step. Work lasts
-`duration_steps`.
-
-**Battery** (Report 4.5): moving costs `battery_per_cost_unit` per unit, and working costs
-`battery_per_work_step` per step. Recharging adds `recharge_per_step` per step at an **open**
-station, up to the maximum; the robot isn't a candidate until it is full.
-**Feasibility:** a robot may accept a request only if
-`battery >= b_c * (d(robot, req) + d(req, nearest open charger)) + b_w * duration`.
-Every rejection is logged.
-
-**Request priority** (Report 5.6): key = `aging_interval * urgency - report_time` (larger first,
-`aging_interval` defaults to 50), then smaller request ID. The key never needs rebuilding as time
-passes.
-
-**Robot tie-breaks** (Report 6.2). A candidate is AVAILABLE, capable (or GENERAL), reachable and
-feasible. Among candidates:
-1. smallest travel cost;
-2. specialist before GENERAL;
-3. higher battery;
-4. smaller robot ID.
-
-More than one candidate counts as a **conflict**. An unservable request never blocks the queue:
-skip it and continue.
-
-**No-route rule** (Report 4.6): the request stays PENDING and is marked *unreachable*. It is retried
-only after the road network changes (an UNBLOCK bumps the network version).
-
-**Rerouting** (Report 4.7):
-- If the robot is **on** the blocked road, it turns back to the location it came from (paying
-  battery for that distance), then reroutes.
-- If a blocked road is **later** in its route, it reroutes from its next location.
-- If no feasible route exists, the request returns to PENDING (a reassignment) and the robot becomes
-  AVAILABLE, or RETURNING if its battery is low.
-
-A charging station that goes down is handled the same way.
-
-**Termination** (Report 4.8): stop at the first step where `t == max_steps`, or where every request
-is COMPLETED or FAILED with nothing left to report and no events left. Unfinished requests become
-FAILED with a reason (`unreachable` or `not_served`).
+### Tests and tools
+```bash
+ctest --test-dir build                 # Windows (Visual Studio generator): ctest --test-dir build -C Debug
+./build/check_invariants data/scenario_05_stress.txt output/scenario_05_log.txt
+./build/gen_scenario 1000 2026 data/perf/perf_1000.txt 600
+```
 
 ---
 
 ## Input format
 
-Full specification: **docs/report.pdf, Section 9**. `data/scenario_provided.txt` must load unchanged.
+Plain text. Lines starting with `#` and blank lines are ignored. Fields are separated by spaces or
+tabs, and names contain no spaces. Windows line endings are accepted. Order: optional
+`SCENARIO <name>`, `PARAM` lines, then the sections. Each section is `KEYWORD <count>` followed by
+exactly `count` records, and the file ends with `END`.
 
-- Lines starting with `#` and blank lines are ignored. Fields are separated by spaces, and names contain no spaces.
-- Optional `SCENARIO <name>`; `PARAM <key> <value>` lines; each section is `KEYWORD <count>` followed by exactly `count` records; the file ends with `END`.
+| Section | Record fields | Allowed values |
+|---|---|---|
+| `PARAM` | `key value` | see the next table |
+| `LOCATIONS` | `id name type` | JUNCTION, BUILDING, HOSPITAL, DEPOT, CHARGING, COMMAND |
+| `CONNECTIONS` | `id location_a location_b cost status` | cost > 0, status OPEN or BLOCKED; undirected; no self-loops |
+| `ROBOTS` | `id start_location capability max_battery initial_battery` | MEDICAL, FIRE, SUPPLY, SEARCH, GENERAL; max > 0; 0 <= initial <= max |
+| `REQUESTS` | `id report_time location category urgency duration_steps` | MEDICAL, FIRE, SUPPLY, SEARCH (not GENERAL); time >= 0; urgency 1-5; duration > 0 |
+| `EVENTS` | `time TYPE ref [value]` | `BLOCK`/`UNBLOCK <connection>`, `STATION_DOWN`/`STATION_UP <charging location>`, `SET_URGENCY <request> <1-5>`, `ROBOT_OFFLINE`/`ROBOT_ONLINE <robot>` |
 
-| Section | Record fields |
+Records may come in any order; requests and events are sorted by time with a **stable** sort, so
+records with the same time keep their file order.
+
+| PARAM | Meaning | Default if missing |
+|---|---|---|
+| `max_steps` | last time step | 0 (and a warning) |
+| `speed` | cost units a robot travels per step (>= 1) | 1 (and a warning) |
+| `battery_per_cost_unit` | battery used per cost unit travelled | 1 (and a warning) |
+| `battery_per_work_step` | battery used per step of work | 1 (and a warning) |
+| `recharge_per_step` | battery added per step at an open charger (>= 1) | 1 (and a warning) |
+| `aging_interval` | *our extension*: A in the priority key (>= 1) | 50, no warning |
+| `low_battery_percent` | *our extension*: low-battery threshold, 0-100 | 30, no warning |
+
+A **missing** spec PARAM is not an error: the default is used and a warning says so (team decision).
+
+### Validation: errors and warnings
+
+Loading never stops at the first problem: every line is checked and **all** messages are listed as
+`error: line N: ...` / `warning: line N: ...` (line 0 = about the whole file). Any error rejects
+the file (exit code 2), and the simulation does not start.
+
+| Errors (file rejected) | Warnings (file still runs) |
 |---|---|
-| `PARAM` | `max_steps`, `speed`, `battery_per_cost_unit`, `battery_per_work_step`, `recharge_per_step`; our optional extensions `aging_interval` (default 50) and `low_battery_percent` (default 30) |
-| `LOCATIONS` | `id name type`; type is JUNCTION, BUILDING, HOSPITAL, DEPOT, CHARGING or COMMAND |
-| `CONNECTIONS` | `id location_a location_b cost status`; cost > 0; status is OPEN or BLOCKED; undirected |
-| `ROBOTS` | `id start_location capability max_battery initial_battery`; capability is MEDICAL, FIRE, SUPPLY, SEARCH or GENERAL; 0 <= initial <= max |
-| `REQUESTS` | `id report_time location category urgency duration_steps`; category is MEDICAL, FIRE, SUPPLY or SEARCH; urgency 1-5; time >= 0; duration > 0 |
-| `EVENTS` | `time TYPE ref [value]`: `BLOCK`/`UNBLOCK <connection>`, `STATION_DOWN`/`STATION_UP <location>`, `SET_URGENCY <request> <urgency>`, `ROBOT_OFFLINE`/`ROBOT_ONLINE <robot>` |
+| section count does not match the number of records; missing `END`; section header without a valid count; unknown section keyword; record outside any section | unknown `PARAM` key (ignored) |
+| wrong number of fields; text where a number is expected; number overflow | a spec `PARAM` is missing (default used) |
+| unknown location type, road status, capability, category or event type (`GENERAL` is not a request category) | an event later than `max_steps` (it can never happen) |
+| duplicate location / connection / robot / request ID | *at run time (log `WARN`)*: redundant events (block a blocked road, unblock an open road, station already down/up, robot already offline / not offline, `SET_URGENCY` on a finished request) |
+| a road, robot, request or event refers to a missing ID; a road from a location to itself | |
+| road cost <= 0; battery out of range; urgency not 1-5; negative report time or event time; duration <= 0; PARAM value out of range | |
+| `STATION_DOWN`/`STATION_UP` on a location that is not CHARGING | |
 
-**Validation** (Report 9.4):
-- **Errors reject the file.** All errors are listed with their line numbers: count mismatch, missing
-  END, bad fields or numbers, duplicate IDs, unknown names, missing references, self-loops, values
-  out of range, and station events on a non-charger.
-- **Warnings don't reject it:** unknown PARAM key, an event after `max_steps`, and redundant events
-  at run time.
+---
 
-## Log format
+## Output format
 
-One line per state change. Every line is `t=<step> <KIND>` followed by `key=value` fields,
-separated by single spaces. All numbers are **file IDs**, never internal indices.
+### Log
 
+One line per change: `t=<step> <KIND> key=value ...`, single spaces, and **file IDs** (never
+internal indices). Routes are location IDs joined by `-`. Example (Scenario 01):
 ```
+t=0 REJECT request=2 robot=2 reason=battery need=13 have=12
 t=0 ASSIGN request=2 robot=3 route=7-5-6 cost=6
-t=0 REJECT request=1 robot=2 reason=battery need=15 have=12
 t=0 STATE robot=2 AVAILABLE->RETURNING target=7
 t=4 EVENT BLOCK connection=4 (2-5)
 t=4 REROUTE robot=1 on=4 back_to=2 route=2-4-7-5 cost=9
 t=7 COMPLETE request=2 robot=3 response=7
 ```
 
-| KIND | Fields | Written by |
+| KIND | Fields | Written when |
 |---|---|---|
-| `REQUEST` | `request= at= category= urgency=` | Simulation (phase 2) |
-| `EVENT` | `<TYPE> <connection/location/request/robot>=<id> [detail]` | EventProcessor |
-| `ASSIGN` | `request= robot= route= cost=` | Coordinator |
-| `REJECT` | `request= robot= reason=battery need= have=` | Coordinator |
-| `STATE` | `robot=<id> FROM->TO [target=]` or `request=<id> FROM->TO` | all modules |
-| `REROUTE` | `robot= [on= back_to=] route= cost=` | Rerouter |
-| `RELEASE` | `request= robot= reason=offline/no_route` | EventProcessor, Rerouter |
-| `ARRIVE` | `robot= at=` | Movement |
-| `COMPLETE` | `request= robot= response=` | Movement |
-| `FAIL` | `request= reason=unreachable/not_served` | Simulation (end of run) |
-| `WARN` | free text | any |
-| `INVALID` | `robot/request=<id> FROM->TO` (rejected transition) | any |
-| `STATS` | `key=value ...` final statistics | Statistics |
+| `REQUEST` | `request= at= category= urgency=` | a request is reported (becomes PENDING) |
+| `EVENT` | `<TYPE> connection=/location=/request=/robot=<id> [detail]` | an event is applied |
+| `ASSIGN` | `request= robot= route= cost=` | a robot gets a request |
+| `REJECT` | `request= robot= reason=battery need= have=` | a capable, reachable robot fails the battery check |
+| `STATE` | `robot=<id> FROM->TO [target=]` or `request=<id> FROM->TO` | a state change not covered by the lines above |
+| `REROUTE` | `robot= [on= back_to=] route= cost=` | a robot gets a new route (`on`/`back_to` when it turns back on a closed road) |
+| `RELEASE` | `request= robot= reason=offline/no_route` | a request goes back to PENDING (a reassignment) |
+| `ARRIVE` | `robot= at=` | a robot reaches the end of its route |
+| `COMPLETE` | `request= robot= response=` | a request is finished |
+| `FAIL` | `request= reason=unreachable/not_served` | an unfinished request at the end of the run |
+| `WARN` | free text | redundant event, robot waiting, no charger reachable |
+| `INVALID` | `robot/request=<id> FROM->TO` | a refused state change (never appears in our runs) |
+| `STATS` | `key=value ...` | the 3 final statistics lines at the end of a log file |
 
-The report's example (Report 9.5) pads the KIND column with spaces. We use single spaces so logs
-are easy to `diff` and parse.
+### Final statistics
+
+Printed after every finished run (and written as `STATS` lines into the log file):
+
+| Field | Definition |
+|---|---|
+| completed / failed / remaining | requests COMPLETED / FAILED (split into `unreachable` and `not served`) / still open when the run stopped (0 after a normal end) |
+| average / max response | response time = completion step - report time, over completed requests |
+| robot utilization % | 100 x (robot-steps spent busy) / (robots x steps run); *busy* = any state except AVAILABLE and OFFLINE (travelling, working, returning, recharging) |
+| total distance / battery used | cost units travelled / battery spent by all robots |
+| conflicts | assignments where more than one robot was a valid candidate |
+| reassignments | requests released back to PENDING (robot went offline, or no route left) |
+| reroutes | new routes given by the Rerouter |
+| battery rejections | `REJECT` lines (capable, reachable, free robot without enough battery) |
+| Dijkstra runs | calls of `Router::run` (assignment, low-battery check, rerouting) |
+| execution time (ms) | time spent inside the simulation steps (printed on the console only, **not** in the log, so two logs can be compared byte by byte) |
 
 ---
 
-## Git workflow
+## Simulation rules
 
-- `main` is **protected**: nobody pushes to it directly.
-- One branch per module: `<name>/<module>`, e.g. `farwa/dynamic-array`, `rabia/router`, `sara/coordinator`.
-- Merge by **pull request** with **one approving review** from another member. Read the code you approve: everyone must explain every file at the demo.
-- Commit messages: short, present tense, e.g. `Add Dijkstra with lazy deletion`.
-- Pull from `main` every morning before starting work. Never change someone else's file without telling them; open an issue or comment on their PR instead.
-- **Before opening a PR:**
-  1. `cmake --build build` has no errors (and no new warnings);
-  2. your own test passes (`ctest --test-dir build`);
-  3. no STL containers:
-     ```bash
-     grep -rnE '#include *<(vector|list|map|set|queue|stack|deque|unordered_map|unordered_set|array|forward_list)>' src tests \
-       && echo "STL container found: remove it" || echo "OK: no STL containers"
-     ```
-  4. every `new` has a matching `delete` (run a test under valgrind or `-fsanitize=address`).
+**One step at time t has 7 phases, always in this order:**
+1. **Events** with time t, in file order.
+2. **New requests** with `report_time == t` become PENDING and enter the priority queue, in file order.
+3. **Reroute check**: only if a road or station changed in phase 1, and only after *all* events of the
+   step, so a BLOCK and UNBLOCK of the same road in one step cause no rerouting.
+4. **Assignment** of pending requests to available robots.
+5. **Low battery**: an AVAILABLE robot below `low_battery_percent` of its maximum heads to the nearest open charger.
+6. **Action**: robots act in increasing ID order: move, work or recharge.
+7. **Record**: the log lines of the step have been written; the counters are updated.
 
-## Known issues
+**Movement.** A robot moves one cost unit at a time, up to `speed` units per step, paying
+`battery_per_cost_unit` per unit. It can pass a location and continue in the same step. A robot
+that reaches its request starts working in the **next** step. It works one unit per step
+(`battery_per_work_step`) until `duration_steps` are done. A robot never starts onto a BLOCKED road.
 
-- **For Rabia: `data/scenario_04_dynamic_events.txt`.** Connections **35-37** duplicate 32-34
-  (and 36 is an OPEN copy of the BLOCKED road 33). Delete records 35, 36 and 37 and change the
-  header to `CONNECTIONS 34`. Without this, two of the file's own tests (BLOCK 29 at t=3, and the
-  UNBLOCK/BLOCK 33 pair at t=8) never trigger. **Only Rabia makes this change, in her PR. Nobody
-  else should edit the file.**
+**Battery and charging.** At an open charging station a RECHARGING robot gains `recharge_per_step`
+per step until it is full, then becomes AVAILABLE. Battery never goes below 0 or above the maximum.
 
-## Open points to settle as a team
+**Feasibility.** A robot may take a request only if
+`battery >= bc * (d(robot, request) + d(request, nearest open charger)) + bw * duration`.
+The charger term is 0 if no open charger is reachable from the request. Every failed check is
+logged as a `REJECT` and counted.
 
-These are not answered by the report. Decide them together, then write the answer here:
-- Tie-break when two open chargers are equally near (`Router::nearestOpenCharger`). Suggestion: smaller location ID.
-- What `ROBOT_OFFLINE` does to a robot that is partway along a road.
-- Definition of robot utilization in the statistics. Suggestion: busy steps / (robots x steps run).
-- Whether a missing spec `PARAM` (e.g. no `speed` line) is an error or uses a default.
+**Priority.** key = `aging_interval * urgency - report_time`. A larger key goes first; on equal
+keys, the smaller request ID goes first. Older requests win over newer ones of the same urgency,
+so nothing starves, and the key never needs to be recomputed as time passes. `SET_URGENCY` changes
+the key in place (change-key).
+
+**Choosing a robot.** Candidates are AVAILABLE, capable (same category or GENERAL), reachable and
+feasible. Tie-breaks, in order:
+1. smallest travel cost;
+2. specialist before GENERAL;
+3. higher battery;
+4. smaller robot ID.
+
+More than one candidate counts as a **conflict**. A request that cannot be served is skipped, so it
+never blocks the requests behind it.
+
+**No route.** If no capable robot can reach a request, it stays PENDING, is marked *unreachable*
+and is not checked again until the network version changes. The version goes up on every UNBLOCK.
+
+**Rerouting** (only in a step where the network changed):
+- a robot **on** the closed road turns back and walks to the location it came from (paying battery), then follows a new route;
+- a robot whose route uses a closed road **later on** gets a new route from its next location;
+- a RETURNING or RECHARGING robot whose charger went down is sent to the nearest other open charger;
+- if no feasible route exists, the request goes back to PENDING (`RELEASE ... reason=no_route`, a
+  reassignment), and the robot becomes AVAILABLE, or RETURNING if its battery is low.
+
+**Robot offline / online.** An offline robot's request goes back to PENDING with its remaining
+work kept (`RELEASE ... reason=offline`), so another robot can finish it. A robot that goes
+offline **on a road stays where it is** until it comes back online. It then becomes AVAILABLE at
+the location it had left (team decision).
+
+**Termination.** The run stops after the step where `t == max_steps`, or after the first step
+where every request is COMPLETED or FAILED and no requests or events are left. Every unfinished
+request then becomes FAILED with reason `unreachable` (marked unreachable) or `not_served`.
+
+**Team decisions.**
+- Chargers at equal distance: the smaller location ID wins.
+- A robot that goes offline on a road stays there until online.
+- A missing PARAM gets its default plus a warning.
+- Events at the same time are applied in file order (stable sort).
+
+---
+
+## Data structures
+
+| Structure | Where it is used | Why | Complexity |
+|---|---|---|---|
+| `DynamicArray<T>` (growable array, doubling) | locations, roads, robots, requests, events, Dijkstra `dist[]`/`pred[]` | everything is referred to by index, so we need O(1) access | push_back O(1) amortised, `[]` O(1) |
+| `LinkedList<T>` (head + tail) | adjacency lists, hash buckets, storage behind `Queue` | cheap insert at both ends, no resizing | push front/back O(1), pop front O(1), walk O(n) |
+| `Queue<T>` (on LinkedList) | a robot's route (connection indices) | a route is consumed from the front; rerouting replaces it | enqueue / dequeue O(1) |
+| `HashMap<int>` (separate chaining, table size = smallest prime >= 2n) | file ID -> index for locations, roads, robots, requests | IDs in files are arbitrary numbers; validation needs fast duplicate checks | insert / find O(1) average |
+| Adjacency list with **shared road records** | the map (`Environment`) | sparse graph (E ~ 2V); both ends point to the same road, so a BLOCK hides it in both directions in O(1) | memory O(V + E), neighbours O(degree), block/unblock O(1) |
+| `MinHeap` (binary heap) | Dijkstra, with **lazy deletion** (stale entries are skipped when popped) | no decrease-key needed, simple and fast | push / pop O(log n); Dijkstra O((V + E) log V) |
+| `IndexedMaxHeap` (heap + position array) | pending requests by priority key | highest priority in O(log n), and `SET_URGENCY` needs change-key | insert / extract-max / change-key O(log n), contains O(1) |
+| Stable `mergeSort` | sorting requests and events by time, robot indices by ID | the spec requires same-time records to keep file order | O(n log n), stable |
+
+**Alternatives we considered.**
+- **Adjacency matrix:** O(V²) memory (1M cells at 1000 locations) for a graph with only about 2V roads, and scanning a row costs O(V). The list wins.
+- **Floyd-Warshall:** O(V³) all-pairs precomputation that every BLOCK/UNBLOCK would invalidate. On-demand Dijkstra costs O((V + E) log V), and one run **from the request** gives the distance to every robot at once.
+- **Sorted list for pending requests:** O(n) insert and O(n) urgency change, against O(log n) in the heap.
+- **BFS / A\*:** BFS ignores road costs. A\* needs a heuristic, and our locations have no coordinates; it also finds one target, while we need distances to all robots and chargers.
+
+---
+
+## Scenarios
+
+| File | Locations / roads / robots / requests / events, max_steps | What it tests |
+|---|---|---|
+| `data/scenario_provided.txt` | 56 / 117 (7 blocked) / 12 / 60 / 20, 250 | the course's minimum scenario; loads and runs unchanged |
+| `data/scenario_01_tiny_trace.txt` | 8 / 11 / 3 / 4 / 1, 60 | full hand trace: routes, battery rejections, low-battery return, turn-back reroute |
+| `data/scenario_02_cutoff_locations.txt` | 12 / 18 / 4 / 6 / 3, 150 | unreachable requests stay PENDING, no head-of-line blocking, zero-length route, retry after UNBLOCK |
+| `data/scenario_03_ties_and_conflicts.txt` | 10 / 14 / 6 / 10 / 0, 200 | every tie-break rule, priority order, conflict counting |
+| `data/scenario_04_dynamic_events.txt` | 20 / 34 / 6 / 24 / 13, 200 | every event type, unsorted events (stable sort), same-step BLOCK+UNBLOCK, redundant events |
+| `data/scenario_05_stress.txt` | 120 / 260 (12 blocked) / 24 / 150 / 60, 600 | stress test: at least twice the provided file in every dimension |
+| `data/invalid/invalid_01_count_mismatch.txt` | | 2 count mismatches (lines 27, 41) |
+| `data/invalid/invalid_02_bad_values_and_references.txt` | | 18 errors + 1 warning (bad values, duplicates, missing references) |
+| `data/invalid/invalid_03_broken_structure.txt` | | 7 errors (non-numeric PARAM, unknown section, missing/extra fields, header without count, text for an ID, no END) + 4 warnings |
+| `data/perf/perf_056.txt` ... `perf_1000.txt` | 56 / 120 / 250 / 500 / 1000 locations, max_steps 600 | performance runs; made by `tools/gen_scenario <n> 2026 <file> 600` |
+
+---
+
+## Results
+
+### Provided scenario (`output/provided_stats.txt`, log in `output/provided_log.txt`)
+
+| Metric | Value |
+|---|---|
+| steps run | 211 (all requests finished before max_steps 250) |
+| completed / failed / remaining | 60 / 0 / 0 |
+| average / max response | 19.43 / 94 steps |
+| robot utilization | 50.75 % |
+| total distance / battery used | 785 / 1383 |
+| conflicts / reassignments / reroutes | 33 / 2 / 0 |
+| battery rejections / Dijkstra runs | 19 / 85 |
+
+Scenario 01 matches the hand trace exactly: 4 completed, 0 failed, 1 reroute, 2 battery
+rejections, response times 16 / 7 / 26 / 15, end at t=28. Two runs of the same file give
+byte-identical logs.
+
+### Performance (`output/performance_results.md`)
+
+Release build, median of 3 runs, Intel Core i5-6300U, Windows 10:
+
+| Locations | Roads | Robots | Requests | Events | Steps run | Sim time (ms) | ms / step | Dijkstra runs | Completed / failed |
+|---|---|---|---|---|---|---|---|---|---|
+| 56 | 106 | 11 | 70 | 28 | 360 | 1.63 | 0.0045 | 78 | 70 / 0 |
+| 120 | 237 | 24 | 150 | 60 | 372 | 3.46 | 0.0093 | 171 | 150 / 0 |
+| 250 | 504 | 50 | 312 | 125 | 373 | 13.91 | 0.0373 | 350 | 312 / 0 |
+| 500 | 1031 | 100 | 625 | 250 | 372 | 57.24 | 0.1539 | 697 | 625 / 0 |
+| 1000 | 2087 | 200 | 1250 | 500 | 380 | 221.08 | 0.5818 | 1401 | 1250 / 0 |
+
+Doubling every dimension multiplies the time by about 4. The number of Dijkstra runs grows
+linearly with the requests, and each run costs O((V + E) log V). Even 1000 locations need about
+0.6 ms per step.
+
+---
+
+## Project structure
+
+```
+resqgrid/
+|-- CMakeLists.txt                 Sarah     builds resqgrid, 5 tests, 2 tools
+|-- README.md                      Farwa
+|-- .gitignore                     Sarah
+|-- src/
+|   |-- main.cpp                   Farwa     command line, full run, --step mode
+|   |-- containers/
+|   |   |-- DynamicArray.h         Farwa
+|   |   |-- LinkedList.h           Farwa
+|   |   |-- Queue.h                Farwa
+|   |   |-- MergeSort.h            Farwa
+|   |   |-- HashMap.h              Rabia
+|   |   |-- MinHeap.h              Rabia
+|   |   `-- IndexedMaxHeap.h       Sarah
+|   |-- core/
+|   |   |-- Types.h                shared    enums, toString/fromString, Str
+|   |   |-- World.h                shared    all simulation data
+|   |   |-- Robot.h/.cpp           Farwa
+|   |   |-- Request.h/.cpp         Farwa
+|   |   |-- Environment.h/.cpp     Rabia
+|   |   |-- Router.h/.cpp          Rabia
+|   |   |-- ScenarioLoader.h/.cpp  Rabia
+|   |   |-- EventProcessor.h/.cpp  Rabia
+|   |   |-- Rerouter.h/.cpp        Rabia
+|   |   |-- Coordinator.h/.cpp     Sarah
+|   |   |-- Movement.h/.cpp        Sarah
+|   |   `-- Simulation.h/.cpp      Sarah
+|   `-- output/
+|       |-- Logger.h/.cpp          Farwa
+|       `-- Statistics.h/.cpp      Farwa
+|-- tests/
+|   |-- test_containers.cpp        Farwa
+|   |-- test_robot_request.cpp     Farwa
+|   |-- test_loader.cpp            Rabia
+|   |-- test_router.cpp            Rabia
+|   `-- test_coordinator.cpp       Sarah
+|-- tools/
+|   |-- gen_scenario.cpp           Rabia     seeded scenario generator
+|   `-- check_invariants.cpp       Rabia     invariant checker
+|-- data/                          Sarah     scenario_provided, scenario_01..05, invalid/, perf/
+`-- output/                                  submitted logs, statistics and performance results
+```
+
+`output/` contains `provided_log.txt` and `provided_stats.txt` (the required output of the provided
+scenario), `scenario_0X_log.txt` / `_stats.txt`, `invalid_0X_errors.txt`, `step_mode_demo.txt`,
+`invariants_check.txt` and `performance_results.md`.
+
+---
+
+## Testing
+
+Each test file is its own program (own `main`, own CMake target); `ctest` runs all five. A failed
+check prints the file and line and makes the program exit with 1.
+
+| Test | Checks |
+|---|---|
+| `test_containers` (59 checks) | DynamicArray (10,000 pushes, deep copy, self-assignment, reserve, assign, pop_back, push of its own element while growing), LinkedList (order, pop, deep copy, reuse after empty), Queue (FIFO, front, copy), MergeSort (sorted, **stable**, empty, one element, 1000 reversed), Types (every enum round-trips; HOUSE, PILOT, GENERAL-as-category rejected) |
+| `test_robot_request` (90 checks) | capability rule, the full robot transition table (15 allowed), request transitions (COMPLETED/FAILED final), priority key (Scenario 01 values 145 and 98, no int overflow), every Logger line format, ring buffer, log file, Statistics (Scenario 01 response times, utilization, reset, no division by zero) |
+| `test_loader` (83 checks) | HashMap (collisions, negative keys, duplicates), tokenizer and number parser, the exact error/warning **line numbers** of all three invalid files, record counts and sort order of every valid file, stable event order in Scenario 04, reloading |
+| `test_router` (107 checks) | MinHeap, Environment block/unblock in both directions and the network version, Router (unreachable, zero-length route, both directions, nearest open charger) and every key cost in Scenario 01 |
+| `test_coordinator` (52 checks) | IndexedMaxHeap (order, ties, change-key), Scenario 03 assignment order and tie-breaks, full Scenario 01 run against the hand trace |
+
+`tools/check_invariants` runs the real simulation step by step and checks after every step:
+- battery always between 0 and the maximum;
+- no robot enters, crosses or keeps going forward on a BLOCKED road;
+- no request held by two robots;
+- a request completes at most once.
+
+Given a log file, it also checks that each request has at most one `COMPLETE` line and that there
+are no `INVALID` lines. Results for every scenario are in `output/invariants_check.txt` (all hold).
+All tests and scenarios also run clean under AddressSanitizer, with no leaks.
+
+---
+
+## Known limitations
+
+- **Greedy assignment:** each request takes the best robot available *now*; there is no global
+  optimisation over all requests and robots.
+- **No pre-emption:** a robot keeps its request even if a more urgent one appears later.
+- **The battery reserve assumes the nearest charger stays open:** if it goes down later, the robot
+  is redirected to another one, which may be further away.
+- **Linear reroute scan:** when the network changes, every moving robot's remaining route is scanned (O(R x route length)).
+- **Repeated closures:** if the network changes again while a robot is walking back on a closed
+  road, the robot is re-planned from its current position again.
+- **Equal-cost routes:** Dijkstra keeps the first shortest path it finds. In Scenario 04, robot 2
+  therefore takes an equally short route that does not use road 29, so the "BLOCK 29 at t=3"
+  reroute described in the file's header comment does not happen.
+- **No recharging in the arrival step:** a robot that reaches a charger starts recharging in the
+  next step. In Scenario 04, robot 6 therefore has 20 battery (not the 24 in the header comment)
+  when its station goes down at t=6; it still goes to charger 5 as expected.

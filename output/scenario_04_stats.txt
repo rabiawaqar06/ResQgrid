@@ -1,0 +1,20 @@
+Loaded data\scenario_04_dynamic_events.txt: 20 locations, 34 connections, 6 robots, 24 requests, 13 events
+========== FINAL STATISTICS ==========
+steps run:            61
+completed:            24
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     8.75
+max response:         23
+robot utilization %:  54.0984
+total distance:       198
+total battery used:   260
+conflicts:            3
+reassignments:        1
+reroutes:             1
+battery rejections:   1
+dijkstra runs:        27
+execution time (ms):  4.3248
+======================================

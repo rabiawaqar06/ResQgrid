@@ -23,7 +23,6 @@ public:
     // while world.events[world.nextEvent].time <= t: apply it, log
     // it, advance nextEvent. Set world.networkChangedThisStep if any road or
     // station status actually changed. Returns that flag.
-    // See: report Sections 4.2 (phase 1) and 6.3   |   Done when: Scenario 04 events logged in the right order
     bool applyEventsAt(int t);
 
     int reassignmentCount() const { return reassignments; }   // requests released by ROBOT_OFFLINE
@@ -39,7 +38,6 @@ private:
     //   ROBOT_OFFLINE        : robot -> OFFLINE; its request -> PENDING (work kept),
     //                          re-inserted in the heap; counts as a reassignment.
     //   ROBOT_ONLINE         : OFFLINE -> AVAILABLE; warning if it was not offline.
-    // See: report Section 6.3   |   Done when: Scenario 04 events logged in the right order
     void applyBlock(const Event& e);
     void applyUnblock(const Event& e);
     void applyStationDown(const Event& e);

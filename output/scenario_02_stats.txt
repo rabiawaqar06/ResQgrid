@@ -1,0 +1,20 @@
+Loaded data\scenario_02_cutoff_locations.txt: 12 locations, 18 connections, 4 robots, 6 requests, 3 events
+========== FINAL STATISTICS ==========
+steps run:            44
+completed:            6
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     21
+max response:         36
+robot utilization %:  38.6364
+total distance:       54
+total battery used:   67
+conflicts:            3
+reassignments:        0
+reroutes:             0
+battery rejections:   0
+dijkstra runs:        10
+execution time (ms):  0.6711
+======================================

@@ -5,7 +5,7 @@
 //             reassignments, battery rejections, distance, battery used,
 //             response times, utilization, run time.
 // Depends on: Robot, Request, Logger, DynamicArray
-// Used by:    Simulation, main.cpp, UIApp (final-stats screen)
+// Used by:    Simulation, main.cpp
 // Milestone:  M3
 //
 // Counters that only another module can see (conflicts, rejections, reroutes,
@@ -46,29 +46,25 @@ public:
     // --- derived ---
     double avgResponse = 0.0;
     int    maxResponse = 0;
-    double utilization = 0.0;       // TODO(Farwa): define in README (suggested: busy steps / (robots * steps))
+    double utilization = 0.0;       // percent: 100 * busy steps / (robots * steps)
     int    stepsRun = 0;
     double runTimeMs = 0.0;
 
-    // TODO(Farwa): set every field back to 0.
-    // See: plan Section 6 (Statistics)   |   Done when: two runs in one process give the same numbers
+    // Set every field back to 0 (two runs in one process give the same numbers).
     void reset();
 
     void addCounters(int reroutes, int conflicts, int reassignments, int batteryRejections, int dijkstraRuns);
 
-    // TODO(Farwa): count outcomes from `requests`, response times
+    // Count outcomes from `requests`, response times
     // (completionTime - reportTime, Report Appendix A) for COMPLETED ones,
     // sum distance / battery / busy steps from `robots`, compute averages.
-    // See: report Appendix A   |   Done when: Scenario 01 gives 4 / 0 / 1 reroute / 2 rejections
     void finalize(const DynamicArray<Robot>& robots, const DynamicArray<Request>& requests,
                   int stepsRun, double runTimeMs);
 
-    // TODO(Farwa): print a readable block of all metrics (console / final screen).
-    // See: spec section 8 (final statistics)   |   Done when: printed after every console run
+    // Readable block of all metrics (console / final screen).
     void print(ostream& out) const;
 
-    // TODO(Farwa): write the same metrics as "STATS key=value" log lines.
-    // See: report Section 9.5   |   Done when: the log file ends with the statistics
+    // The same metrics as "STATS key=value" log lines (run time left out).
     void writeToLog(Logger& log) const;
 };
 

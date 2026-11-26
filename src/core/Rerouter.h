@@ -30,7 +30,6 @@ public:
 
     // if !world.networkChangedThisStep return; otherwise check
     // every robot in ID order (world.robotsById) and apply the policy above.
-    // See: report Section 4.7   |   Done when: Scenario 01 t=4 and Scenario 04 t=3 match
     void rerouteAffected();
 
     int rerouteCount() const      { return reroutes; }
@@ -38,28 +37,23 @@ public:
 
 private:
     // true if the robot's current road or any road left in its route is BLOCKED.
-    // See: report Section 7.5   |   Done when: Scenario 04 "blocked later in route" detected
     bool routeBlocked(const Robot& r) const;
 
     // true if the robot is heading to / recharging at a charger that is now down.
-    // See: report Section 4.7   |   Done when: Scenario 04 station-down case detected
     bool chargerDown(const Robot& r) const;
 
     // robot on a blocked road turns around on it and walks back to `location`
     // (progress counted from the far end). Movement then moves it back, so the
     // walk back costs real steps and battery (hand trace: Request 1 done at t=16).
-    // See: report Sections 4.7 and 7.6   |   Done when: Scenario 01 Robot 1 is back at 2 at t=4
     void turnBack(Robot& r);
 
     // new route from the robot's (next) location to its target
     // (request location, or nearest open charger when RETURNING); battery
     // feasibility as in Report 4.5. False if there is no feasible route.
-    // See: report Section 4.7   |   Done when: Scenario 01 new route 2-4-7-5 cost 9
     bool replan(Robot& r);
 
     // request -> PENDING (keep remainingWork), clear both links,
     // pending.insert, ++reassignments, robot -> AVAILABLE or RETURNING.
-    // See: report Sections 4.3 and 4.7   |   Done when: logged as RELEASE and counted
     void releaseRequest(Robot& r);
 
     World&          world;

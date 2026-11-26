@@ -15,27 +15,31 @@
 template <typename T>
 class Queue {
 public:
-    // TODO(Farwa): add to the back (list.pushBack).
-    // See: report Section 5.8   |   Done when: test FIFO order kept
-    void enqueue(const T& value) { (void)value; }
+    void enqueue(const T& value) {
+        items.pushBack(value);
+    }
 
-    // TODO(Farwa): remove the front into `out` (list.popFront); false if empty.
-    // See: report Section 5.8   |   Done when: test FIFO order kept
-    bool dequeue(T& out) { (void)out; return false; }
+    bool dequeue(T& out) {
+        return items.popFront(out);
+    }
 
-    // TODO(Farwa): copy the front value into `out` without removing it; false if empty.
-    // See: report Section 5.8   |   Done when: front() then dequeue() give the same value
-    bool front(T& out) const { (void)out; return false; }
+    bool front(T& out) const {
+        if (items.isEmpty()) {
+            return false;
+        }
+        out = items.first()->value;
+        return true;
+    }
 
-    // TODO(Farwa): remove everything (list.clear).
-    // See: report Section 5.8   |   Done when: isEmpty() after clear()
-    void clear() {}
+    void clear() {
+        items.clear();
+    }
 
     bool isEmpty() const { return items.isEmpty(); }
     int  size() const    { return items.size(); }
 
     // Read-only walk over the queue from front to back (Rerouter scans routes,
-    // the Renderer draws them, Router::routeToString prints them).
+    // Router::routeToString prints them).
     const typename LinkedList<T>::Node* first() const { return items.first(); }
 
 private:

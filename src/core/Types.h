@@ -65,28 +65,98 @@ enum class FailReason { NONE, UNREACHABLE, NOT_SERVED };
 //   toString(x)        -> the exact spelling used in the input file and log.
 //   fromString(s, out) -> true and sets `out` if `s` is a valid spelling,
 //                         false otherwise (the loader reports the error).
-//   Done when: every enum round-trips (fromString(toString(x)) == x).
+//   Every enum round-trips (fromString(toString(x)) == x).
 // ---------------------------------------------------------------------------
 
-// TODO(Farwa): return the file spelling of each value, e.g. "JUNCTION".
-// See: report Section 9.2   |   Done when: every enum round-trips
-inline Str toString(LocationType v) { (void)v; return "?"; }
-inline Str toString(Capability v)   { (void)v; return "?"; }
-inline Str toString(Category v)     { (void)v; return "?"; }
-inline Str toString(RobotState v)   { (void)v; return "?"; }
-inline Str toString(RequestState v) { (void)v; return "?"; }
-inline Str toString(EventType v)    { (void)v; return "?"; }
-inline Str toString(ConnStatus v)   { (void)v; return "?"; }
-inline Str toString(FailReason v)   { (void)v; return "?"; }  // "none", "unreachable", "not_served"
+// Spellings, in the same order as the enum values above.
+const Str LOCATION_NAMES[6]      = { "JUNCTION", "BUILDING", "HOSPITAL", "DEPOT", "CHARGING", "COMMAND" };
+const Str CAPABILITY_NAMES[5]    = { "MEDICAL", "FIRE", "SUPPLY", "SEARCH", "GENERAL" };
+const Str CATEGORY_NAMES[4]      = { "MEDICAL", "FIRE", "SUPPLY", "SEARCH" };
+const Str ROBOT_STATE_NAMES[6]   = { "AVAILABLE", "TRAVELLING", "PERFORMING", "RETURNING", "RECHARGING", "OFFLINE" };
+const Str REQUEST_STATE_NAMES[5] = { "PENDING", "ASSIGNED", "IN_PROGRESS", "COMPLETED", "FAILED" };
+const Str EVENT_NAMES[7]         = { "BLOCK", "UNBLOCK", "STATION_DOWN", "STATION_UP", "SET_URGENCY",
+                                     "ROBOT_OFFLINE", "ROBOT_ONLINE" };
+const Str STATUS_NAMES[2]        = { "OPEN", "BLOCKED" };
+const Str FAIL_REASON_NAMES[3]   = { "none", "unreachable", "not_served" };
 
-// TODO(Farwa): compare `s` with each spelling; set `out` and return true on a match.
-// See: report Section 9.2   |   Done when: every enum round-trips; "HOUSE", "PILOT" return false
-inline bool fromString(const Str& s, LocationType& out) { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, Capability& out)   { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, Category& out)     { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, RobotState& out)   { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, RequestState& out) { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, EventType& out)    { (void)s; (void)out; return false; }
-inline bool fromString(const Str& s, ConnStatus& out)   { (void)s; (void)out; return false; }
+inline Str toString(LocationType v) { return LOCATION_NAMES[(int)v]; }
+inline Str toString(Capability v)   { return CAPABILITY_NAMES[(int)v]; }
+inline Str toString(Category v)     { return CATEGORY_NAMES[(int)v]; }
+inline Str toString(RobotState v)   { return ROBOT_STATE_NAMES[(int)v]; }
+inline Str toString(RequestState v) { return REQUEST_STATE_NAMES[(int)v]; }
+inline Str toString(EventType v)    { return EVENT_NAMES[(int)v]; }
+inline Str toString(ConnStatus v)   { return STATUS_NAMES[(int)v]; }
+inline Str toString(FailReason v)   { return FAIL_REASON_NAMES[(int)v]; }
+
+inline bool fromString(const Str& s, LocationType& out) {
+    for (int i = 0; i < 6; i++) {
+        if (LOCATION_NAMES[i] == s) {
+            out = (LocationType)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool fromString(const Str& s, Capability& out) {
+    for (int i = 0; i < 5; i++) {
+        if (CAPABILITY_NAMES[i] == s) {
+            out = (Capability)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Only 4 names, so "GENERAL" is rejected as a request category.
+inline bool fromString(const Str& s, Category& out) {
+    for (int i = 0; i < 4; i++) {
+        if (CATEGORY_NAMES[i] == s) {
+            out = (Category)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool fromString(const Str& s, RobotState& out) {
+    for (int i = 0; i < 6; i++) {
+        if (ROBOT_STATE_NAMES[i] == s) {
+            out = (RobotState)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool fromString(const Str& s, RequestState& out) {
+    for (int i = 0; i < 5; i++) {
+        if (REQUEST_STATE_NAMES[i] == s) {
+            out = (RequestState)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool fromString(const Str& s, EventType& out) {
+    for (int i = 0; i < 7; i++) {
+        if (EVENT_NAMES[i] == s) {
+            out = (EventType)i;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool fromString(const Str& s, ConnStatus& out) {
+    for (int i = 0; i < 2; i++) {
+        if (STATUS_NAMES[i] == s) {
+            out = (ConnStatus)i;
+            return true;
+        }
+    }
+    return false;
+}
 
 #endif // RESQGRID_TYPES_H

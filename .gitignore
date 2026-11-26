@@ -31,9 +31,11 @@ Testing/
 *.pdb
 *.ilk
 
-# Simulation output: logs are written here but not committed
-output/*
-!output/.gitkeep
+# Simulation output: the submitted logs, statistics and performance table in
+# output/ ARE committed (the spec asks for the provided scenario's output).
+# Only the files the tests write while testing stay out.
+output/test_loader_messages.txt
+output/test_robot_request_log.txt
 
 # Editors / OS
 .vscode/
