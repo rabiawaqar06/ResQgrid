@@ -1,0 +1,91 @@
+# ==========================================================================
+# Scenario 01 - Tiny hand-traceable scenario
+# --------------------------------------------------------------------------
+# PURPOSE
+#   Small enough to solve completely by hand, so the output of the simulator
+#   can be compared line by line with a manual trace (Report, Appendix A).
+#
+# WHAT IT TESTS
+#   1. Shortest path is not the direct edge: the 1-2 edge costs 4, but
+#      1 -> 3 -> 2 costs 3. A BFS / "fewest hops" route would be wrong.
+#   2. An initially BLOCKED connection (7-8) is never used.
+#   3. Battery feasibility check: Robot 2 (GENERAL, 12/60 battery) is the
+#      closest robot to Requests 1 and 2 but cannot afford either, so both
+#      rejections must be logged and the next-best robot chosen.
+#   4. Low-battery rule: Robot 2 goes to the nearest open charger instead
+#      of idling.
+#   5. Road blocked while a robot is ON it (t=4, connection 4 = 2-5).
+#   6. One robot, many requests: only Robot 2 can serve SUPPLY and SEARCH,
+#      so Requests 3 and 4 compete for it; Request 4 (urgency 3) must be
+#      served before the older Request 3 (urgency 2).
+#
+# KEY SHORTEST-PATH COSTS (all connections undirected)
+#   1 -> 5 : 1-3-2-5             = 8   (before t=4)
+#   2 -> 5 : 2-4-7-5             = 9   (after connection 4 is blocked)
+#   7 -> 6 : 7-5-6               = 6   (7-8 is blocked)
+#   8 -> 6 : 8-6                 = 3
+#   8 -> 7 : 8-6-5-7             = 9   (nearest charger for Robot 2)
+#   7 -> 5 : 7-5                 = 4
+#   5 -> 4 : 5-7-4               = 6   (after t=4)
+#
+# EXPECTED OUTCOME (under the rules in Report, Section 4)
+#   t=0  Req 2 (urg 5) first: Robot 2 rejected (needs 3+4+6=13 > 12),
+#        assigned to Robot 3, route 7-5-6.
+#        Req 1 (urg 4): Robot 2 rejected (needs 5+6+4=15 > 12),
+#        assigned to Robot 1, route 1-3-2-5.
+#        Robot 2 -> RETURNING to charger 7 via 8-6-5-7.
+#   t=4  BLOCK 4: Robot 1 is 1 unit along 2-5, turns back to 2,
+#        reroutes 2-4-7-5.
+#   t=7  Req 2 COMPLETED by Robot 3.
+#   t=8  Robot 2 reaches charger 7 (battery 3), recharges t=9..14.
+#   t=15 Robot 2 AVAILABLE; picks Req 4 (urg 3) before Req 3 (urg 2).
+#   t=16 Req 1 COMPLETED by Robot 1 (travelled 14 units, battery 80).
+#   t=20 Req 4 COMPLETED.   t=28 Req 3 COMPLETED.  Simulation ends at t=28.
+#   Final: 4 completed, 0 failed, 1 reroute, 2 battery rejections.
+# ==========================================================================
+
+SCENARIO tiny_trace_01
+PARAM max_steps 60
+PARAM speed 1
+PARAM battery_per_cost_unit 1
+PARAM battery_per_work_step 2
+PARAM recharge_per_step 10
+
+LOCATIONS 8
+1 Command_Center COMMAND
+2 Junction_A JUNCTION
+3 Junction_B JUNCTION
+4 Hospital_1 HOSPITAL
+5 Building_1 BUILDING
+6 Building_2 BUILDING
+7 Charging_1 CHARGING
+8 Supply_Depot_1 DEPOT
+
+CONNECTIONS 11
+1 1 2 4 OPEN
+2 1 3 2 OPEN
+3 3 2 1 OPEN
+4 2 5 5 OPEN
+5 3 6 8 OPEN
+6 5 6 2 OPEN
+7 2 4 3 OPEN
+8 4 7 2 OPEN
+9 6 8 3 OPEN
+10 7 8 6 BLOCKED
+11 5 7 4 OPEN
+
+ROBOTS 3
+1 1 MEDICAL 100 100
+2 8 GENERAL 60 12
+3 7 FIRE 100 100
+
+REQUESTS 4
+1 0 5 MEDICAL 4 3
+2 0 6 FIRE 5 2
+3 2 4 SUPPLY 2 2
+4 5 5 SEARCH 3 2
+
+EVENTS 1
+4 BLOCK 4
+
+END

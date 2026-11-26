@@ -1,0 +1,3 @@
+Scenario file is invalid: 2 error(s)
+error: line 27: LOCATIONS count is 6 but 5 records follow
+error: line 41: ROBOTS count is 2 but 3 records follow

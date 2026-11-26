@@ -1,0 +1,28 @@
+data\scenario_provided.txt: 211 steps, 0 walk-back(s) on blocked roads
+  log: 575 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\scenario_01_tiny_trace.txt: 29 steps, 0 walk-back(s) on blocked roads
+  log: 43 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\scenario_02_cutoff_locations.txt: 44 steps, 0 walk-back(s) on blocked roads
+  log: 59 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\scenario_03_ties_and_conflicts.txt: 45 steps, 0 walk-back(s) on blocked roads
+  log: 83 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\scenario_04_dynamic_events.txt: 61 steps, 0 walk-back(s) on blocked roads
+  log: 224 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\scenario_05_stress.txt: 399 steps, 0 walk-back(s) on blocked roads
+  log: 1332 lines, 0 INVALID lines
+  ALL INVARIANTS HOLD
+data\perf\perf_056.txt: 360 steps, 0 walk-back(s) on blocked roads
+  ALL INVARIANTS HOLD
+data\perf\perf_120.txt: 372 steps, 0 walk-back(s) on blocked roads
+  ALL INVARIANTS HOLD
+data\perf\perf_250.txt: 373 steps, 0 walk-back(s) on blocked roads
+  ALL INVARIANTS HOLD
+data\perf\perf_500.txt: 372 steps, 1 walk-back(s) on blocked roads
+  ALL INVARIANTS HOLD
+data\perf\perf_1000.txt: 380 steps, 0 walk-back(s) on blocked roads
+  ALL INVARIANTS HOLD

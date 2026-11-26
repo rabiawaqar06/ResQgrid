@@ -1,0 +1,83 @@
+t=0 REQUEST request=1 at=8 category=MEDICAL urgency=4
+t=0 REQUEST request=2 at=9 category=FIRE urgency=4
+t=0 REQUEST request=3 at=1 category=SEARCH urgency=5
+t=0 REQUEST request=4 at=6 category=MEDICAL urgency=2
+t=0 REQUEST request=14 at=5 category=SUPPLY urgency=3
+t=0 REQUEST request=11 at=2 category=SUPPLY urgency=3
+t=0 REQUEST request=15 at=9 category=SUPPLY urgency=3
+t=0 REQUEST request=13 at=4 category=SUPPLY urgency=3
+t=0 REQUEST request=12 at=3 category=SUPPLY urgency=3
+t=0 ASSIGN request=3 robot=6 route=7-1 cost=4
+t=0 ASSIGN request=1 robot=2 route=3-8 cost=2
+t=0 ASSIGN request=2 robot=3 route=4-9 cost=2
+t=0 ASSIGN request=11 robot=5 route=6-1-2 cost=7
+t=0 ASSIGN request=4 robot=1 route=2-1-6 cost=7
+t=1 REQUEST request=16 at=8 category=SUPPLY urgency=3
+t=1 ARRIVE robot=2 at=8
+t=1 STATE robot=2 TRAVELLING->PERFORMING
+t=1 STATE request=1 ASSIGNED->IN_PROGRESS
+t=1 ARRIVE robot=3 at=9
+t=1 STATE robot=3 TRAVELLING->PERFORMING
+t=1 STATE request=2 ASSIGNED->IN_PROGRESS
+t=3 ARRIVE robot=6 at=1
+t=3 STATE robot=6 TRAVELLING->PERFORMING
+t=3 STATE request=3 ASSIGNED->IN_PROGRESS
+t=4 STATE request=1 IN_PROGRESS->COMPLETED
+t=4 COMPLETE request=1 robot=2 response=4
+t=4 STATE robot=2 PERFORMING->AVAILABLE
+t=4 STATE request=2 IN_PROGRESS->COMPLETED
+t=4 COMPLETE request=2 robot=3 response=4
+t=4 STATE robot=3 PERFORMING->AVAILABLE
+t=5 STATE request=3 IN_PROGRESS->COMPLETED
+t=5 COMPLETE request=3 robot=6 response=5
+t=5 STATE robot=6 PERFORMING->AVAILABLE
+t=6 ARRIVE robot=1 at=6
+t=6 STATE robot=1 TRAVELLING->PERFORMING
+t=6 STATE request=4 ASSIGNED->IN_PROGRESS
+t=6 ARRIVE robot=5 at=2
+t=6 STATE robot=5 TRAVELLING->PERFORMING
+t=6 STATE request=11 ASSIGNED->IN_PROGRESS
+t=8 STATE request=4 IN_PROGRESS->COMPLETED
+t=8 COMPLETE request=4 robot=1 response=8
+t=8 STATE robot=1 PERFORMING->AVAILABLE
+t=8 STATE request=11 IN_PROGRESS->COMPLETED
+t=8 COMPLETE request=11 robot=5 response=8
+t=8 STATE robot=5 PERFORMING->AVAILABLE
+t=9 ASSIGN request=12 robot=5 route=2-8-3 cost=4
+t=12 ARRIVE robot=5 at=3
+t=12 STATE robot=5 TRAVELLING->PERFORMING
+t=12 STATE request=12 ASSIGNED->IN_PROGRESS
+t=14 STATE request=12 IN_PROGRESS->COMPLETED
+t=14 COMPLETE request=12 robot=5 response=14
+t=14 STATE robot=5 PERFORMING->AVAILABLE
+t=15 ASSIGN request=13 robot=5 route=3-1-4 cost=6
+t=20 ARRIVE robot=5 at=4
+t=20 STATE robot=5 TRAVELLING->PERFORMING
+t=20 STATE request=13 ASSIGNED->IN_PROGRESS
+t=22 STATE request=13 IN_PROGRESS->COMPLETED
+t=22 COMPLETE request=13 robot=5 response=22
+t=22 STATE robot=5 PERFORMING->AVAILABLE
+t=23 ASSIGN request=14 robot=5 route=4-9-5 cost=4
+t=26 ARRIVE robot=5 at=5
+t=26 STATE robot=5 TRAVELLING->PERFORMING
+t=26 STATE request=14 ASSIGNED->IN_PROGRESS
+t=28 STATE request=14 IN_PROGRESS->COMPLETED
+t=28 COMPLETE request=14 robot=5 response=28
+t=28 STATE robot=5 PERFORMING->AVAILABLE
+t=29 ASSIGN request=15 robot=5 route=5-9 cost=2
+t=30 ARRIVE robot=5 at=9
+t=30 STATE robot=5 TRAVELLING->PERFORMING
+t=30 STATE request=15 ASSIGNED->IN_PROGRESS
+t=32 STATE request=15 IN_PROGRESS->COMPLETED
+t=32 COMPLETE request=15 robot=5 response=32
+t=32 STATE robot=5 PERFORMING->AVAILABLE
+t=33 ASSIGN request=16 robot=5 route=9-4-1-2-8 cost=10
+t=42 ARRIVE robot=5 at=8
+t=42 STATE robot=5 TRAVELLING->PERFORMING
+t=42 STATE request=16 ASSIGNED->IN_PROGRESS
+t=44 STATE request=16 IN_PROGRESS->COMPLETED
+t=44 COMPLETE request=16 robot=5 response=43
+t=44 STATE robot=5 PERFORMING->AVAILABLE
+t=44 STATS completed=10 failed=0 unreachable=0 not_served=0 remaining=0 steps=45
+t=44 STATS avg_response=16.800000 max_response=43 utilization=25.925926 distance=48 battery_used=70
+t=44 STATS conflicts=3 reassignments=0 reroutes=0 battery_rejections=0 dijkstra_runs=10

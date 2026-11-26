@@ -1,0 +1,116 @@
+Loaded data\scenario_01_tiny_trace.txt: 8 locations, 11 connections, 3 robots, 4 requests, 1 events
+Commands:
+  s          run one step
+  n <k>      run k steps
+  env        locations, roads and chargers
+  robots     robot states
+  requests   requests by state
+  stats      counts so far (final statistics once finished)
+  log [k]    last k log lines (default 20), also works with --quiet
+  run        run to the end
+  help       this list
+  q          quit
+[next t=0] > t=0 REQUEST request=1 at=5 category=MEDICAL urgency=4
+t=0 REQUEST request=2 at=6 category=FIRE urgency=5
+t=0 REJECT request=2 robot=2 reason=battery need=13 have=12
+t=0 ASSIGN request=2 robot=3 route=7-5-6 cost=6
+t=0 REJECT request=1 robot=2 reason=battery need=15 have=12
+t=0 ASSIGN request=1 robot=1 route=1-3-2-5 cost=8
+t=0 STATE robot=2 AVAILABLE->RETURNING target=7
+[next t=1] > --- ENVIRONMENT (network version 0) ---
+Locations:
+  1 Command_Center COMMAND
+  2 Junction_A JUNCTION
+  3 Junction_B JUNCTION
+  4 Hospital_1 HOSPITAL
+  5 Building_1 BUILDING
+  6 Building_2 BUILDING
+  7 Charging_1 CHARGING (charger UP)
+  8 Supply_Depot_1 DEPOT
+Roads:
+  1 1-2 cost=4 OPEN
+  2 1-3 cost=2 OPEN
+  3 3-2 cost=1 OPEN
+  4 2-5 cost=5 OPEN
+  5 3-6 cost=8 OPEN
+  6 5-6 cost=2 OPEN
+  7 2-4 cost=3 OPEN
+  8 4-7 cost=2 OPEN
+  9 6-8 cost=3 OPEN
+  10 7-8 cost=6 BLOCKED
+  11 5-7 cost=4 OPEN
+8 locations, 11 roads (1 blocked), 1 chargers
+[next t=1] > --- ROBOTS ---
+  robot 1 MEDICAL TRAVELLING battery=99/100 on road 2 (1->3, 1/2) request=1 target=5
+  robot 2 GENERAL RETURNING battery=11/60 on road 9 (8->6, 1/3) target=7
+  robot 3 FIRE TRAVELLING battery=99/100 on road 11 (7->5, 1/4) request=2 target=6
+[next t=1] > --- REQUESTS ---
+Pending queue (0 in the max-heap, array order, top first):
+PENDING: none
+ASSIGNED:
+  request 1 MEDICAL urgency=4 at=5 reported=0 robot=1
+  request 2 FIRE urgency=5 at=6 reported=0 robot=3
+IN_PROGRESS: none
+COMPLETED: none
+FAILED: none
+NOT REPORTED YET:
+  request 3 SUPPLY urgency=2 at=4 reported=2
+  request 4 SEARCH urgency=3 at=5 reported=5
+[next t=1] > t=2 REQUEST request=3 at=4 category=SUPPLY urgency=2
+t=4 EVENT BLOCK connection=4 (2-5)
+t=4 REROUTE robot=1 on=4 back_to=2 route=2-4-7-5 cost=9
+t=5 REQUEST request=4 at=5 category=SEARCH urgency=3
+t=5 ARRIVE robot=3 at=6
+t=5 STATE robot=3 TRAVELLING->PERFORMING
+t=5 STATE request=2 ASSIGNED->IN_PROGRESS
+[next t=6] > --- PROGRESS at t=6 (max_steps 60) ---
+pending=2 assigned=1 in_progress=1 completed=0 failed=0 not_reported=0 events_left=0
+[next t=6] > t=7 STATE request=2 IN_PROGRESS->COMPLETED
+t=7 COMPLETE request=2 robot=3 response=7
+t=7 STATE robot=3 PERFORMING->AVAILABLE
+t=8 ARRIVE robot=2 at=7
+t=8 STATE robot=2 RETURNING->RECHARGING
+t=13 ARRIVE robot=1 at=5
+t=13 STATE robot=1 TRAVELLING->PERFORMING
+t=13 STATE request=1 ASSIGNED->IN_PROGRESS
+t=14 STATE robot=2 RECHARGING->AVAILABLE
+t=15 ASSIGN request=4 robot=2 route=7-5 cost=4
+t=16 STATE request=1 IN_PROGRESS->COMPLETED
+t=16 COMPLETE request=1 robot=1 response=16
+t=16 STATE robot=1 PERFORMING->AVAILABLE
+t=18 ARRIVE robot=2 at=5
+t=18 STATE robot=2 TRAVELLING->PERFORMING
+t=18 STATE request=4 ASSIGNED->IN_PROGRESS
+t=20 STATE request=4 IN_PROGRESS->COMPLETED
+t=20 COMPLETE request=4 robot=2 response=15
+t=20 STATE robot=2 PERFORMING->AVAILABLE
+t=21 ASSIGN request=3 robot=2 route=5-7-4 cost=6
+t=26 ARRIVE robot=2 at=4
+t=26 STATE robot=2 TRAVELLING->PERFORMING
+t=26 STATE request=3 ASSIGNED->IN_PROGRESS
+t=28 STATE request=3 IN_PROGRESS->COMPLETED
+t=28 COMPLETE request=3 robot=2 response=26
+t=28 STATE robot=2 PERFORMING->AVAILABLE
+simulation finished
+[finished at t=28] > ========== FINAL STATISTICS ==========
+steps run:            29
+completed:            4
+failed:               0
+  unreachable:        0
+  not served:         0
+remaining:            0
+average response:     16
+max response:         26
+robot utilization %:  62.069
+total distance:       39
+total battery used:   57
+conflicts:            0
+reassignments:        0
+reroutes:             1
+battery rejections:   2
+dijkstra runs:        6
+execution time (ms):  1.051
+======================================
+t=28 STATS completed=4 failed=0 unreachable=0 not_served=0 remaining=0 steps=29
+t=28 STATS avg_response=16.000000 max_response=26 utilization=62.068966 distance=39 battery_used=57
+t=28 STATS conflicts=0 reassignments=0 reroutes=1 battery_rejections=2 dijkstra_runs=6

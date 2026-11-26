@@ -1,0 +1,12 @@
+Scenario file is invalid: 7 error(s)
+error: line 27: PARAM max_steps value 'abc' is not a whole number
+error: line 32: unknown section keyword VEHICLES
+error: line 38: location needs 3 fields (id name type), found 2
+error: line 44: connection needs 5 fields (id a b cost status), found 6
+error: line 47: section header ROBOTS needs one count (a whole number >= 0)
+error: line 52: request has a field that is not a number
+error: line 0: file ends without the END line
+warning: line 29: unknown PARAM key weather (ignored)
+warning: line 0: PARAM battery_per_cost_unit missing, using default 1
+warning: line 0: PARAM battery_per_work_step missing, using default 1
+warning: line 0: PARAM recharge_per_step missing, using default 1

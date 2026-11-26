@@ -1,0 +1,100 @@
+# ==========================================================================
+# Invalid 02 - Each record is well formed, but its VALUES are wrong
+# --------------------------------------------------------------------------
+# PURPOSE
+#   All section counts are correct, so this file only passes if the loader
+#   also checks values, IDs and cross-references.
+#
+# ERRORS PLANTED (one per line, marked by the comment above it)
+#   E1  Duplicate location ID 3.
+#   E2  Unknown location type HOUSE.
+#   E3  Connection 4 refers to location 99, which does not exist.
+#   E4  Connection 5 is a self-loop (3 to 3).
+#   E5  Connection 6 has cost 0 (costs must be positive integers).
+#   E6  Connection 7 has status CLOSED (must be OPEN or BLOCKED).
+#   E7  Robot 2 has initial battery 120 > max battery 100.
+#   E8  Robot 3 has unknown capability PILOT.
+#   E9  Duplicate robot ID 1.
+#   E10 Request 2 has urgency 7 (must be 1 to 5).
+#   E11 Request 3 has category GENERAL (GENERAL is a robot capability,
+#       not a request category).
+#   E12 Request 4 has a negative report time.
+#   E13 Request 5 has duration 0.
+#   E14 Event BLOCK refers to connection 50, which does not exist.
+#   E15 Event STATION_DOWN on location 2, which is not a CHARGING station.
+#   E16 Event SET_URGENCY on request 9, which does not exist.
+#   E17 Event ROBOT_OFFLINE refers to robot 8, which does not exist.
+#   E18 Event time 999 is beyond max_steps (50).
+#   E19 Unknown event type EXPLODE.
+#
+# EXPECTED RESULT
+#   Loading is rejected and all 19 errors are listed with line numbers.
+#   E18 may be reported as a WARNING instead of an error if the group
+#   decides that late events are simply never reached (document it).
+# ==========================================================================
+
+SCENARIO invalid_bad_values_02
+PARAM max_steps 50
+PARAM speed 1
+PARAM battery_per_cost_unit 1
+PARAM battery_per_work_step 1
+PARAM recharge_per_step 10
+
+LOCATIONS 6
+1 Command_Center COMMAND
+2 Junction_1 JUNCTION
+3 Building_1 BUILDING
+# E1
+3 Building_2 BUILDING
+5 Charging_1 CHARGING
+# E2
+6 Shelter_1 HOUSE
+
+CONNECTIONS 7
+1 1 2 3 OPEN
+2 2 3 4 OPEN
+3 2 5 2 OPEN
+# E3
+4 5 99 3 OPEN
+# E4
+5 3 3 4 OPEN
+# E5
+6 1 5 0 OPEN
+# E6
+7 1 3 5 CLOSED
+
+ROBOTS 4
+1 1 MEDICAL 100 100
+# E7
+2 2 GENERAL 100 120
+# E8
+3 5 PILOT 100 100
+# E9
+1 3 FIRE 100 100
+
+REQUESTS 5
+1 0 3 MEDICAL 3 2
+# E10
+2 1 2 FIRE 7 2
+# E11
+3 2 3 GENERAL 2 2
+# E12
+4 -1 5 SEARCH 2 2
+# E13
+5 3 2 SUPPLY 2 0
+
+EVENTS 6
+# E14
+5 BLOCK 50
+# E15
+6 STATION_DOWN 2
+# E16
+7 SET_URGENCY 9 5
+# E17
+8 ROBOT_OFFLINE 8
+# E18
+999 UNBLOCK 1
+# E19
+10 EXPLODE 3
+
+END

@@ -1,0 +1,53 @@
+# ==========================================================================
+# Invalid 01 - Section count does not match the records present
+# --------------------------------------------------------------------------
+# PURPOSE
+#   The format says a header "KEYWORD count" is followed by EXACTLY count
+#   records, and a mismatch must be reported as invalid input.
+#
+# ERRORS PLANTED
+#   E1  LOCATIONS says 6 but only 5 records follow (the next header,
+#       CONNECTIONS, appears early).
+#   E2  ROBOTS says 2 but 3 records follow (an extra record appears
+#       before the REQUESTS header).
+#
+# EXPECTED RESULT
+#   Loading is rejected. Both errors are reported with their line numbers
+#   (the loader keeps going after E1 so the user sees every problem in one
+#   run). The simulation does not start.
+# ==========================================================================
+
+SCENARIO invalid_count_mismatch_01
+PARAM max_steps 50
+PARAM speed 1
+PARAM battery_per_cost_unit 1
+PARAM battery_per_work_step 1
+PARAM recharge_per_step 10
+
+LOCATIONS 6
+1 Command_Center COMMAND
+2 Junction_1 JUNCTION
+3 Building_1 BUILDING
+4 Hospital_1 HOSPITAL
+5 Charging_1 CHARGING
+
+CONNECTIONS 5
+1 1 2 3 OPEN
+2 2 3 4 OPEN
+3 2 4 2 OPEN
+4 4 5 3 OPEN
+5 3 5 6 BLOCKED
+
+ROBOTS 2
+1 1 MEDICAL 100 100
+2 4 GENERAL 100 100
+3 5 FIRE 100 100
+
+REQUESTS 2
+1 0 3 MEDICAL 3 2
+2 4 4 FIRE 2 2
+
+EVENTS 1
+10 BLOCK 2
+
+END

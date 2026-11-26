@@ -1,0 +1,101 @@
+# ==========================================================================
+# Scenario 02 - Cut-off locations and "no route" handling
+# --------------------------------------------------------------------------
+# PURPOSE
+#   Checks what the coordinator does when a request cannot be reached, and
+#   that it recovers correctly when the environment changes.
+#
+# WHAT IT TESTS
+#   1. Location 9 (Building_Cutoff) starts with ALL of its connections
+#      BLOCKED (8, 9 and 10). Requests 1 and 5 there must stay PENDING
+#      (not FAILED, not assigned) until a connection is restored at t=20.
+#   2. No head-of-line blocking: Request 1 has the highest urgency (5) but
+#      is unreachable. The coordinator must skip it and still assign
+#      Request 2 at t=0 instead of stopping at the top of the queue.
+#   3. Location 12 (Building_Isolated) is also cut off, and Robot 3 STARTS
+#      there. Robot 3 is stranded: it can serve Request 3 (at its own
+#      location, route length 0) but nothing else until t=30.
+#   4. Zero-length route: Request 3 is at Robot 3's own location.
+#   5. Request 6 (MEDICAL) is at the isolated location, but the robot
+#      already there is SEARCH. It must wait for UNBLOCK 15 at t=30.
+#   6. A road on a newly opened path is blocked again at t=40
+#      (connection 12 = 4-11). Location 9 stays reachable through 10-11.
+#
+# KEY FACTS
+#   Before t=20: no OPEN connection touches location 9.
+#   After  t=20: 9 is reachable through 11 (connection 11, cost 2).
+#   Before t=30: no OPEN connection touches location 12.
+#
+# EXPECTED OUTCOME (under the rules in Report, Section 4)
+#   t=0   Req 1 skipped (no route), Req 2 assigned to Robot 4 (route
+#         6-3-4-7, cost 9), loop continues past the unreachable request.
+#   t=1   Req 3 assigned to Robot 3 with an empty route (cost 0).
+#   t=2   Req 4 (SEARCH) assigned to Robot 1 (GENERAL); Robot 3 is not a
+#         candidate because it cannot reach location 8.
+#   t=20  UNBLOCK 11 -> unreachable requests are re-checked; Req 1 is
+#         assigned. Req 5 follows when a capable robot is free.
+#   t=30  UNBLOCK 15 -> Robot 3 and Req 6 are reconnected.
+#   End:  all 6 requests completed; no request is ever FAILED.
+# ==========================================================================
+
+SCENARIO cutoff_locations_02
+PARAM max_steps 150
+PARAM speed 1
+PARAM battery_per_cost_unit 1
+PARAM battery_per_work_step 1
+PARAM recharge_per_step 10
+
+LOCATIONS 12
+1 Command_Center COMMAND
+2 Junction_1 JUNCTION
+3 Junction_2 JUNCTION
+4 Junction_3 JUNCTION
+5 Hospital_1 HOSPITAL
+6 Charging_1 CHARGING
+7 Building_1 BUILDING
+8 Building_2 BUILDING
+9 Building_Cutoff BUILDING
+10 Supply_Depot_1 DEPOT
+11 Junction_4 JUNCTION
+12 Building_Isolated BUILDING
+
+CONNECTIONS 18
+1 1 2 3 OPEN
+2 2 3 4 OPEN
+3 3 4 3 OPEN
+4 2 5 5 OPEN
+5 3 6 2 OPEN
+6 4 7 4 OPEN
+7 5 8 3 OPEN
+8 8 9 4 BLOCKED
+9 7 9 5 BLOCKED
+10 7 8 6 OPEN
+11 11 9 2 BLOCKED
+12 4 11 3 OPEN
+13 10 11 4 OPEN
+14 6 10 5 OPEN
+15 12 11 3 BLOCKED
+16 12 1 7 BLOCKED
+17 1 10 6 OPEN
+18 5 6 4 OPEN
+
+ROBOTS 4
+1 1 GENERAL 100 100
+2 5 MEDICAL 100 100
+3 12 SEARCH 100 100
+4 6 FIRE 100 100
+
+REQUESTS 6
+1 0 9 MEDICAL 5 3
+2 0 7 FIRE 2 2
+3 1 12 SEARCH 3 2
+4 2 8 SEARCH 4 2
+5 3 9 SEARCH 2 2
+6 10 12 MEDICAL 4 2
+
+EVENTS 3
+20 UNBLOCK 11
+30 UNBLOCK 15
+40 BLOCK 12
+
+END

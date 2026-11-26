@@ -1,0 +1,20 @@
+Scenario file is invalid: 18 error(s)
+error: line 48: duplicate location ID 3
+error: line 51: location 6 has unknown type HOUSE
+error: line 58: connection 4 refers to missing location 99
+error: line 60: connection 5 is a self-loop (3 to 3)
+error: line 62: connection 6 has cost 0 (must be > 0)
+error: line 64: connection 7 has unknown status CLOSED
+error: line 69: robot 2 battery 120/100 out of range (need 0 <= initial <= max, max > 0)
+error: line 71: robot 3 has unknown capability PILOT
+error: line 73: duplicate robot ID 1
+error: line 78: request 2 has urgency 7 (must be 1 to 5)
+error: line 80: request 3 has unknown category GENERAL
+error: line 82: request 4 has negative report time -1
+error: line 84: request 5 has duration 0 (must be > 0)
+error: line 98: unknown event type EXPLODE
+error: line 88: BLOCK refers to missing connection 50
+error: line 90: STATION_DOWN on location 2, which is not a CHARGING station
+error: line 92: SET_URGENCY refers to missing request 9
+error: line 94: ROBOT_OFFLINE refers to missing robot 8
+warning: line 96: event at time 999 is after max_steps 50 and will never happen

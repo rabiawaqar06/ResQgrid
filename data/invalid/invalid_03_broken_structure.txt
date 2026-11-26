@@ -1,0 +1,55 @@
+# ==========================================================================
+# Invalid 03 - Broken file structure
+# --------------------------------------------------------------------------
+# PURPOSE
+#   Tests the parser itself rather than the values: unknown keywords,
+#   missing fields, text where numbers are expected, and a missing END.
+#
+# ERRORS PLANTED
+#   E1  PARAM max_steps has a non-numeric value (abc).
+#   E2  Unknown section keyword VEHICLES.
+#   E3  Location record with a missing field (no type).
+#   E4  Connection record with an extra field.
+#   E5  Section header without a count (ROBOTS).
+#   E6  Request record where the location is text (Hospital_1), not an ID.
+#   E7  The file ends without the END line (truncated file).
+#
+# EXPECTED RESULT
+#   Loading is rejected with a clear message for each problem. The loader
+#   must not crash, loop forever, or read past the end of the file.
+#   Note: an unknown PARAM key (e.g. "PARAM weather rain") is NOT an
+#   error in our design, only a warning, so that new parameters can be
+#   added later without breaking old files.
+# ==========================================================================
+
+SCENARIO invalid_structure_03
+# E1
+PARAM max_steps abc
+PARAM speed 1
+PARAM weather rain
+
+# E2
+VEHICLES 1
+1 2 TRUCK
+
+LOCATIONS 3
+1 Command_Center COMMAND
+# E3
+2 Junction_1
+3 Hospital_1 HOSPITAL
+
+CONNECTIONS 2
+1 1 2 3 OPEN
+# E4
+2 2 3 4 OPEN 99
+
+# E5
+ROBOTS
+1 1 MEDICAL 100 100
+
+REQUESTS 1
+# E6
+1 0 Hospital_1 MEDICAL 3 2
+
+EVENTS 0
+# E7: no END line below this point

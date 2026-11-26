@@ -1,0 +1,157 @@
+# ==========================================================================
+# Scenario 04 - Dynamic events and their effect on later decisions
+# --------------------------------------------------------------------------
+# PURPOSE
+#   Every event type in the format appears here at least once, each placed
+#   so it hits a robot or request at a known moment.
+#
+# LAYOUT
+#   A 5 x 4 grid (row-major IDs 1..20) plus three extra connections:
+#   32 = 8-7 (cost 8), a PARALLEL road beside connection 6 = 7-8 (cost 5);
+#   33 = 13-19 (initially BLOCKED); 34 = 2-8 diagonal. Chargers at 5, 16.
+#   speed = 2, so a robot can pass a node and continue in the same step.
+#
+# WHAT IT TESTS
+#   1. EVENTS are deliberately NOT listed in time order. The loader must
+#      sort them by time with a STABLE sort, so same-time events keep
+#      their file order (required by the specification).
+#   2. t=3 BLOCK 29 (13-18): Robot 2 (route 1-6-7-12-13-18-19-20, cost 16)
+#      is at node 12 at that moment. The blocked road is in its PLANNED
+#      route, not under it, so it must reroute from 12.
+#   3. t=4 SET_URGENCY 5 5: Request 5 (urgency 1) jumps ahead of Request 6
+#      (urgency 2) while both wait for the only SUPPLY robot (Robot 4).
+#      Needs an "update key" operation on the pending-request queue.
+#   4. t=5 ROBOT_OFFLINE 1 while Robot 1 is PERFORMING Request 1
+#      (zero-length route, duration 10, work started at t=1). Request 1
+#      returns to PENDING with its remaining work kept and is reassigned;
+#      counted as one reassignment.
+#   5. Robot 6 starts with battery 0 at charger 16 and recharges. t=6
+#      STATION_DOWN 16 stops it at 24/100 (below 30 %), so it must head to
+#      the other charger (5, route cost 18).
+#   6. t=8 BLOCK 10 then UNBLOCK 10 (same step): net result OPEN. Robot 6
+#      is at node 12 heading over connection 10. Because rerouting is done
+#      after ALL events of the step, Robot 6 must NOT reroute.
+#   7. t=8 UNBLOCK 33 then BLOCK 33 (same step): net result BLOCKED.
+#   8. t=12 BLOCK 6: the cheaper of two parallel roads closes; 7-8 is
+#      still reachable through connection 32 (cost 8).
+#   9. t=15 UNBLOCK 1 on a road that is already OPEN -> warning, no change.
+#  10. t=60 SET_URGENCY 3 1 on an already COMPLETED request -> warning,
+#      no change.
+#  11. t=30 ROBOT_ONLINE 1 brings the robot back as AVAILABLE.
+# ==========================================================================
+
+SCENARIO dynamic_events_04
+PARAM max_steps 200
+PARAM speed 2
+PARAM battery_per_cost_unit 1
+PARAM battery_per_work_step 1
+PARAM recharge_per_step 4
+
+LOCATIONS 20
+1 Command_Center COMMAND
+2 Building_1 BUILDING
+3 Supply_Depot_1 DEPOT
+4 Building_2 BUILDING
+5 Charging_North CHARGING
+6 Junction_1 JUNCTION
+7 Building_3 BUILDING
+8 Hospital_1 HOSPITAL
+9 Building_4 BUILDING
+10 Junction_2 JUNCTION
+11 Building_5 BUILDING
+12 Junction_3 JUNCTION
+13 Building_6 BUILDING
+14 Building_7 BUILDING
+15 Building_8 BUILDING
+16 Charging_South CHARGING
+17 Building_9 BUILDING
+18 Building_10 BUILDING
+19 Junction_4 JUNCTION
+20 Building_11 BUILDING
+
+CONNECTIONS 34
+1 1 2 3 OPEN
+2 2 3 2 OPEN
+3 3 4 4 OPEN
+4 4 5 3 OPEN
+5 6 7 2 OPEN
+6 7 8 5 OPEN
+7 8 9 2 OPEN
+8 9 10 3 OPEN
+9 11 12 4 OPEN
+10 12 13 2 OPEN
+11 13 14 3 OPEN
+12 14 15 2 OPEN
+13 16 17 3 OPEN
+14 17 18 3 OPEN
+15 18 19 2 OPEN
+16 19 20 4 OPEN
+17 1 6 2 OPEN
+18 2 7 4 OPEN
+19 3 8 3 OPEN
+20 4 9 2 OPEN
+21 5 10 3 OPEN
+22 6 11 3 OPEN
+23 7 12 2 OPEN
+24 8 13 4 OPEN
+25 9 14 3 OPEN
+26 10 15 2 OPEN
+27 11 16 2 OPEN
+28 12 17 3 OPEN
+29 13 18 2 OPEN
+30 14 19 4 OPEN
+31 15 20 3 OPEN
+32 8 7 8 OPEN
+33 13 19 3 BLOCKED
+34 2 8 4 OPEN
+
+ROBOTS 6
+1 13 MEDICAL 100 100
+2 1 GENERAL 120 120
+3 8 MEDICAL 100 100
+4 3 SUPPLY 100 100
+5 10 FIRE 100 100
+6 16 FIRE 100 0
+
+REQUESTS 24
+1 0 13 MEDICAL 3 10
+2 0 20 SEARCH 4 3
+3 0 9 FIRE 3 2
+4 1 2 SUPPLY 2 3
+5 2 15 SUPPLY 1 2
+6 2 17 SUPPLY 2 2
+7 3 7 MEDICAL 4 2
+8 5 11 FIRE 3 3
+9 6 4 MEDICAL 2 2
+10 8 18 SEARCH 3 2
+11 10 6 FIRE 5 2
+12 12 12 SUPPLY 2 3
+13 14 14 MEDICAL 4 2
+14 15 19 FIRE 2 2
+15 18 3 SEARCH 1 2
+16 20 10 MEDICAL 3 3
+17 22 16 FIRE 4 2
+18 25 8 SUPPLY 3 2
+19 28 5 SEARCH 2 2
+20 30 20 MEDICAL 5 3
+21 33 1 FIRE 3 2
+22 36 13 SUPPLY 2 2
+23 40 17 MEDICAL 4 2
+24 45 9 SEARCH 3 2
+
+EVENTS 13
+5 ROBOT_OFFLINE 1
+3 BLOCK 29
+4 SET_URGENCY 5 5
+8 BLOCK 10
+8 UNBLOCK 10
+8 UNBLOCK 33
+8 BLOCK 33
+6 STATION_DOWN 16
+12 BLOCK 6
+15 UNBLOCK 1
+25 STATION_UP 16
+30 ROBOT_ONLINE 1
+60 SET_URGENCY 3 1
+
+END

@@ -1,0 +1,43 @@
+t=0 REQUEST request=1 at=5 category=MEDICAL urgency=4
+t=0 REQUEST request=2 at=6 category=FIRE urgency=5
+t=0 REJECT request=2 robot=2 reason=battery need=13 have=12
+t=0 ASSIGN request=2 robot=3 route=7-5-6 cost=6
+t=0 REJECT request=1 robot=2 reason=battery need=15 have=12
+t=0 ASSIGN request=1 robot=1 route=1-3-2-5 cost=8
+t=0 STATE robot=2 AVAILABLE->RETURNING target=7
+t=2 REQUEST request=3 at=4 category=SUPPLY urgency=2
+t=4 EVENT BLOCK connection=4 (2-5)
+t=4 REROUTE robot=1 on=4 back_to=2 route=2-4-7-5 cost=9
+t=5 REQUEST request=4 at=5 category=SEARCH urgency=3
+t=5 ARRIVE robot=3 at=6
+t=5 STATE robot=3 TRAVELLING->PERFORMING
+t=5 STATE request=2 ASSIGNED->IN_PROGRESS
+t=7 STATE request=2 IN_PROGRESS->COMPLETED
+t=7 COMPLETE request=2 robot=3 response=7
+t=7 STATE robot=3 PERFORMING->AVAILABLE
+t=8 ARRIVE robot=2 at=7
+t=8 STATE robot=2 RETURNING->RECHARGING
+t=13 ARRIVE robot=1 at=5
+t=13 STATE robot=1 TRAVELLING->PERFORMING
+t=13 STATE request=1 ASSIGNED->IN_PROGRESS
+t=14 STATE robot=2 RECHARGING->AVAILABLE
+t=15 ASSIGN request=4 robot=2 route=7-5 cost=4
+t=16 STATE request=1 IN_PROGRESS->COMPLETED
+t=16 COMPLETE request=1 robot=1 response=16
+t=16 STATE robot=1 PERFORMING->AVAILABLE
+t=18 ARRIVE robot=2 at=5
+t=18 STATE robot=2 TRAVELLING->PERFORMING
+t=18 STATE request=4 ASSIGNED->IN_PROGRESS
+t=20 STATE request=4 IN_PROGRESS->COMPLETED
+t=20 COMPLETE request=4 robot=2 response=15
+t=20 STATE robot=2 PERFORMING->AVAILABLE
+t=21 ASSIGN request=3 robot=2 route=5-7-4 cost=6
+t=26 ARRIVE robot=2 at=4
+t=26 STATE robot=2 TRAVELLING->PERFORMING
+t=26 STATE request=3 ASSIGNED->IN_PROGRESS
+t=28 STATE request=3 IN_PROGRESS->COMPLETED
+t=28 COMPLETE request=3 robot=2 response=26
+t=28 STATE robot=2 PERFORMING->AVAILABLE
+t=28 STATS completed=4 failed=0 unreachable=0 not_served=0 remaining=0 steps=29
+t=28 STATS avg_response=16.000000 max_response=26 utilization=62.068966 distance=39 battery_used=57
+t=28 STATS conflicts=0 reassignments=0 reroutes=1 battery_rejections=2 dijkstra_runs=6

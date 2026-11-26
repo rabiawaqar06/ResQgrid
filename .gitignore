@@ -1,0 +1,55 @@
+# File:       .gitignore
+# Owner:      Sara
+# Purpose:    Keep build products, logs and editor files out of git.
+# Depends on: -
+# Used by:    git
+# Milestone:  M0
+
+# Development plan: private to the team, NEVER commit it (any folder, any copy)
+*Development_Plan*
+*development_plan*
+
+# Build folders
+build/
+build-*/
+cmake-build-*/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.out
+*.pdb
+*.ilk
+
+# Simulation output: the submitted logs, statistics and performance table in
+# output/ ARE committed (the spec asks for the provided scenario's output).
+# Only the files the tests write while testing stay out.
+output/test_loader_messages.txt
+output/test_robot_request_log.txt
+
+# Editors / OS
+.vscode/
+.idea/
+.vs/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# LaTeX build files
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
